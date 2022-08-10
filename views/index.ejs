@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <header id="header">
+    <h1 id="logo">Liar Game</h1>
+  </header>
+  
+  <canvas id="canvas"></canvas>
+</body>
+<script src="../socket.io.js"></script>
+<script>
+  let socket = io()
+  let canvas = document.querySelector('canvas')
+  let ctx = canvas.getContext('2d')
+
+  canvas.width = innerWidth;
+  canvas.height = innerHeight;
+  class Player{
+    constructor(id){
+      this.id = id
+    }
+    hi(){
+      console.log(this.id)
+    }
+  }
+</script>
+<script src="../canvas.js"></script>
+
+</html>
