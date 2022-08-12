@@ -5,31 +5,129 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Document</title>
+  <link rel="stylesheet" href="../css/reset.css">
+  <link rel="stylesheet" href="../css/socket.css">
 </head>
 <body>
-  <header id="header">
-    <h1 id="logo">Liar Game</h1>
-  </header>
-  
+  <div class="wrap">
+    <header id="header">
+      <div class="header_inner">
+        <h1 class="logo"><a href="index.html">Liar game</a></h1>
+        <nav class="gnb">
+          <ul>
+            <li><a href="#" class="create_room">방생성</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main id="main">
+      <section class="clearfix room_inner">
+        <article class="room_left">
+          <h2>방목록</h2>
+          <div class="room_list">
+            <table>
+              <thead>
+                <tr>
+                  <th>플레이어 인원</th>
+                  <th>방 번호</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </article>
+        <article class="room_right">
+          <h2>플레이어목록</h2>
+          <div class="player_list">
+            <table border="1">
+              <th>접속자</th>
+            </table>
+          </div>
+        </article>
+      </section>
+    </main>
+  </div>
+  <div class="modal">
+    <div class="modalBox">
+      <label for="닉네임">당신의 닉크네임</label>
+      <input name="닉네임" placeholder="게스트 닉네임~" type="text">
+    </div>
+  </div>  
   <canvas id="canvas"></canvas>
 </body>
-<script src="../socket.io.js"></script>
+<script src="../js/socket.io.js"></script>
 <script>
   let socket = io()
-  let canvas = document.querySelector('canvas')
-  let ctx = canvas.getContext('2d')
+  let CreateRoomBtn = document.querySelector('.create_room')
+//방생성 버튼을 누르면 서버에게 방 생성 버튼을 눌럿다고 보내줌
+  CreateRoomBtn.addEventListener('click',()=>{
+    socket.emit('createRoom','방생성')
+  })
+//그리고 방 생성 버튼을 누른 인간의 socketid와 방번호를 받아와서 테이블 삽입해줄거임
+  socket.on('createRoom',(data)=>{
+    let RoomTable = document.querySelector('.room_list table tbody')
+    let tr = document.createElement('tr')
+    let td_left = document.createElement('td')
+    let td_right = document.createElement('td')
+    tr.appendChild(td_right)
+    tr.appendChild(td_left)
+    td_left.innerHTML='<tr>'+'<td>'+ data.title + '</td>'+ '</tr>'
+    td_right.innerHTML='<tr>'+'<td>'+ data.player + '</td>'+ '</tr>'
+    RoomTable.append(tr)
+  })
+// 유저가 접속하면 모달창 띄워줄거임
+  let modal = document.querySelector('.modal')
+  let modalInput = document.querySelector('.modal input')
+  let nickname = ''
+  modal.style.display='block'
+  //유저가 연결되면 할일
+    //데이터 방 목록 받아오고 테이블 쏴주기
+    socket.on('roomData',(data)=>{
+      //방 목록 받아오기
+      data[0].forEach((room)=>{
+        let RoomTable = document.querySelector('.room_list table tbody')
+        let tr = document.createElement('tr')
+        let td_left = document.createElement('td')
+        let td_right = document.createElement('td')
+        tr.appendChild(td_right)
+        tr.appendChild(td_left)
+        td_left.innerHTML='<tr>'+'<td>'+ room.title + '</td>'+ '</tr>'
+        td_right.innerHTML='<tr>'+'<td>'+ room.player + '</td>'+ '</tr>'
+        RoomTable.append(tr)
+      })
+      //유저목록 받아 와버리기~
+  })
+  
+  modalInput.addEventListener('input',(e)=>{
+    nickname = e.target.value
+  })
+  
+  modalInput.addEventListener('keydown',(e)=>{
+    if(e.key==='Enter'){
+      if(nickname === '') return alert('암것도 안적엇다잉')
+      if(nickname.length > 4) return alert('5자이상 안되는데?')
+      socket.emit('nickname',nickname)
+      modal.style.display='none'  
+    }
+  })
+  let loggedPlayer = []
+  socket.on('userList',(data)=>{
+    let userTable = document.querySelector('.player_list table')
+    data.forEach((userData,userIndex) => {
+      // 이미 닉네임이 table에 올라가 있다면 리턴~ 안올리거야
+      if(loggedPlayer.includes(data[userIndex].nickname)) return
+      loggedPlayer.push(data[userIndex].nickname)
+      let tr = document.createElement('tr')
+      let td = document.createElement('td')
+      tr.append(td)
+      td.innerHTML='<tr>'+'<td  >'+ data[userIndex].nickname + '</td>'+ '</tr>'
+      userTable.append(tr)
+    });
+  })
 
-  canvas.width = innerWidth;
-  canvas.height = innerHeight;
-  class Player{
-    constructor(id){
-      this.id = id
-    }
-    hi(){
-      console.log(this.id)
-    }
-  }
+  
+
 </script>
-<script src="../canvas.js"></script>
+<script src="../js/canvas.js"></script>
 
 </html>

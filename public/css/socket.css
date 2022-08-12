@@ -1,0 +1,91 @@
+[class $= 'inner']{
+  width: 1200px;
+  margin: auto;
+  padding: 30px 0 30px 0;
+}
+#header{
+}
+#header .header_inner{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+#header .logo {
+  
+}
+#header .gnb ul {
+  font-size: 1.2em;
+  display: flex;
+}
+#header .gnb ul li:not(:first-child) {
+  margin-left: 20px;
+}
+#header .gnb a:hover {
+  color: red;
+}
+#main {}
+#main h2 {
+  font-size: 20px;
+  margin-bottom: 23px;
+}
+#main .room_inner{
+  text-align: center;
+  height: 497px;
+}
+#main .room_left {
+  float: left;
+  width: 690px;
+  height: 450px;
+  
+}
+#main .room_right {
+  float: right;
+}
+#main .room_list {
+  width: 690px;
+  height: 450px;
+}
+#main .player_list{
+  width: 385px;
+  height: 450px;
+}
+#main table{
+  width: 100%;
+}
+#main table th {
+  height: 30px;
+}
+#main table tr {
+  height: 30px;
+}
+#main table tr:hover td{
+  border: 1px solid;
+  cursor: pointer;
+}
+.modal {
+  display: none;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%,-50%);
+  width: 100%;
+  height: 100%;
+  background-color: antiquewhite
+}
+.modal .modalBox {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%,-50%);
+}
+.modalBox label{
+  font-size: 30px;
+}
+#canvas {
+  position:absolute;
+  display: none;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #eee;
+}
