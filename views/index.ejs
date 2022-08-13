@@ -32,7 +32,7 @@
                   <th>방 번호</th>
                 </tr>
               </thead>
-              <tbody></tbody>
+              <tbody class="room"></tbody>
             </table>
           </div>
         </article>
@@ -59,51 +59,18 @@
 <script>
   let socket = io()
   let CreateRoomBtn = document.querySelector('.create_room')
-//방생성 버튼을 누르면 서버에게 방 생성 버튼을 눌럿다고 보내줌
-  CreateRoomBtn.addEventListener('click',()=>{
-    socket.emit('createRoom','방생성')
-  })
-//그리고 방 생성 버튼을 누른 인간의 socketid와 방번호를 받아와서 테이블 삽입해줄거임
-  socket.on('createRoom',(data)=>{
-    let RoomTable = document.querySelector('.room_list table tbody')
-    let tr = document.createElement('tr')
-    let td_left = document.createElement('td')
-    let td_right = document.createElement('td')
-    tr.appendChild(td_right)
-    tr.appendChild(td_left)
-    td_left.innerHTML='<tr>'+'<td>'+ data.title + '</td>'+ '</tr>'
-    td_right.innerHTML='<tr>'+'<td>'+ data.player + '</td>'+ '</tr>'
-    RoomTable.append(tr)
-  })
 // 유저가 접속하면 모달창 띄워줄거임
   let modal = document.querySelector('.modal')
   let modalInput = document.querySelector('.modal input')
   let nickname = ''
   modal.style.display='block'
-  //유저가 연결되면 할일
-    //데이터 방 목록 받아오고 테이블 쏴주기
-    socket.on('roomData',(data)=>{
-      //방 목록 받아오기
-      data[0].forEach((room)=>{
-        let RoomTable = document.querySelector('.room_list table tbody')
-        let tr = document.createElement('tr')
-        let td_left = document.createElement('td')
-        let td_right = document.createElement('td')
-        tr.appendChild(td_right)
-        tr.appendChild(td_left)
-        td_left.innerHTML='<tr>'+'<td>'+ room.title + '</td>'+ '</tr>'
-        td_right.innerHTML='<tr>'+'<td>'+ room.player + '</td>'+ '</tr>'
-        RoomTable.append(tr)
-      })
-      //유저목록 받아 와버리기~
-  })
-  
+  //데이터 방 목록 받아오고 테이블 쏴주기
   modalInput.addEventListener('input',(e)=>{
     nickname = e.target.value
   })
-  
   modalInput.addEventListener('keydown',(e)=>{
     if(e.key==='Enter'){
+      nickname = nickname.replace(' ','')
       if(nickname === '') return alert('암것도 안적엇다잉')
       if(nickname.length > 4) return alert('5자이상 안되는데?')
       socket.emit('nickname',nickname)
@@ -111,22 +78,63 @@
     }
   })
   let loggedPlayer = []
+  let loggedPlayerId = []
+  let userTable = document.querySelector('.player_list table')
   socket.on('userList',(data)=>{
-    let userTable = document.querySelector('.player_list table')
     data.forEach((userData,userIndex) => {
-      // 이미 닉네임이 table에 올라가 있다면 리턴~ 안올리거야
+      //유저목록 받아 와버리기~
+      // 이미 닉네임이 table에 올라가 있다면 리턴~ 안올릴거야
       if(loggedPlayer.includes(data[userIndex].nickname)) return
       loggedPlayer.push(data[userIndex].nickname)
       let tr = document.createElement('tr')
       let td = document.createElement('td')
+      tr.classList.add(data[userIndex].nickname)
       tr.append(td)
       td.innerHTML='<tr>'+'<td  >'+ data[userIndex].nickname + '</td>'+ '</tr>'
       userTable.append(tr)
     });
   })
-
+  let RoomTable = document.querySelector('.room_list table tbody')
+  socket.on('roomsData',(data)=>{
+      //방 목록 받아오기
+      data[0].forEach((room)=>{
+        let tr = document.createElement('tr')
+        let td_left = document.createElement('td')
+        let td_right = document.createElement('td')
+        tr.classList.add(room.title)
+        tr.appendChild(td_right)
+        tr.appendChild(td_left)
+        td_left.innerHTML='<tr>'+'<td>'+ room.title + '</td>'+ '</tr>'
+        td_right.innerHTML='<tr>'+'<td>'+ room.player + '</td>'+ '</tr>'
+        RoomTable.append(tr)
+      })
+  })
+  //방생성 버튼을 누르면 서버에게 방 생성 버튼을 눌럿다고 보내줌
+  CreateRoomBtn.addEventListener('click',()=>{
+    socket.emit('createRoom','방생성')
+  })
+//그리고 방 생성 버튼을 누른 인간의 socketid와 방번호를 받아와서 테이블 삽입해줄거임
+  socket.on('createRoom',(room)=>{
+    let RoomTable = document.querySelector('.room_list table tbody')
+    let tr = document.createElement('tr')
+    let td_left = document.createElement('td')
+    let td_right = document.createElement('td')
+    tr.classList.add(room.title)
+    tr.appendChild(td_right)
+    tr.appendChild(td_left)
+    td_left.innerHTML='<tr>'+'<td>'+ room.title + '</td>'+ '</tr>'
+    td_right.innerHTML='<tr>'+'<td>'+ room.player + '</td>'+ '</tr>'
+    RoomTable.append(tr)
+  })
+  //방 참가
+  RoomTable.addEventListener('click',e=>{
+    if(e.target.tagName === 'TD'){
+      let tr = e.target.parentElement
+      let roomName = tr.className
+      socket.emit('joinRoom',roomName)
+    }
+  })
   
-
 </script>
 <script src="../js/canvas.js"></script>
 
