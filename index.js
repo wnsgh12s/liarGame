@@ -47,8 +47,9 @@ io.on('connection',function(socket){
     })
     //방 정보 사용자에게 내보내기
     let roomData ={
-      'title' : `room${RoomCount}`,
-      'player' : userName[0] ? userName[0].nickname : '너이름안정해써'
+      'roomNumber' : `room${RoomCount}`,
+      'player' : userName[0] ? userName[0].nickname : '이름 안정했자나',
+      'roomName' : data
     }
     roomDataArr.push(roomData)
     io.emit('createRoom',roomData)
@@ -73,3 +74,4 @@ io.on('connection',function(socket){
   })
     roomDataArr[0] && io.to(socket.id).emit('roomsData',[roomDataArr,user])
 })
+  
