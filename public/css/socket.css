@@ -1,3 +1,13 @@
+@import url(font.css);
+
+body{
+  height: 100vh;
+  font-family:'Galmuri11';
+  color: #9E8A4A;
+  background: linear-gradient(45deg,#DC2424,#4A569D) no-repeat;
+  background-size: contain;
+}
+
 [class $= 'inner']{
   width: 1200px;
   margin: auto;
@@ -21,12 +31,12 @@
   margin-left: 20px;
 }
 #header .gnb a:hover {
-  color: red;
+  color: #DC2424
 }
 #main {}
 #main h2 {
   font-size: 20px;
-  margin-bottom: 23px;
+  margin-bottom: 23px;  
 }
 #main .room_inner{
   text-align: center;
@@ -51,6 +61,7 @@
 }
 #main table{
   width: 100%;
+  box-shadow: 5px 5px 15px #eee
 }
 #main table th {
   height: 30px;
@@ -58,28 +69,51 @@
 #main table tr {
   height: 30px;
 }
-#main table tr:hover td{
+#main table tr:hover{
   border: 1px solid;
   cursor: pointer;
 }
 .loginModal {
-  display: none;
+  display: block;
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%,-50%);
   width: 100%;
   height: 100%;
-  background-color: antiquewhite
+  background: linear-gradient(40deg,#DC2424,#4A569D) no-repeat center center;
+  
 }
+
 .loginModal .loginModalBox {
-  position: absolute;
+  text-shadow: 1px 4px 5px #4A569D;
+  position: relative;
   left: 50%;
   top: 50%;
+  width: 50%;
+  display: flex;
+  padding: 30px;
+  flex-direction: column;
   transform: translate(-50%,-50%);
+  border: 5px solid;
+  border-radius: 5px;
+  background-color: #dc242424;
+  text-align: center;
+  box-shadow: inset 0px 1px 3px #eee;;
 }
+.loginModal h2 {
+  font-size: 50px;
+  margin-bottom: 30px;
+}
+
 .loginModalBox label{
   font-size: 30px;
+  margin-bottom: 15px
+}
+.loginModalBox input{
+  font-family: 'Galmuri11';
+  padding: 10px;
+  text-align: center;
 }
 
 #canvas {
@@ -112,4 +146,30 @@
 }
 .createRoomModal .createRoomModalBox label{
   font-size: 50px;
+}
+/* 비밀번호 창 */
+.passwordModal{
+  position: absolute;
+  text-align: center;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%,-50%);
+  width: 20%;
+}
+
+.passwordModal div{
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  top: 50%;
+  left: 50%;
+  width: 50%; 
+  transform: translate(-50%,-50%);
+  background-color: #4A569D;
+  padding: 30px;
+}
+.passwordModal button {
+  padding: 5px;
+  text-align: center;
+  margin-bottom: 20px;
 }

@@ -12,7 +12,7 @@
   <div class="wrap">
     <header id="header">
       <div class="header_inner">
-        <h1 class="logo"><a href="index.html">Liar game</a></h1>
+        <h1 class="logo"><a href="/">Liar game</a></h1>
         <nav class="gnb">
           <ul>
             <li><a href="#" class="create_room">방생성</a></li>
@@ -28,7 +28,7 @@
             <table>
               <thead>
                 <tr>
-                  <th>플레이어 인원</th>
+                  <th>방 상태 / 플레이어 인원</th>
                   <th>방 이름</th>
                   <th>방 번호</th>
                 </tr>
@@ -50,26 +50,27 @@
   </div>
   <div class="loginModal">
     <div class="loginModalBox">
+      <h2>liar game</h2>
       <label for="닉네임">당신의 닉크네임</label>
       <input name="닉네임" placeholder="게스트 닉네임~" type="text">
     </div>
   </div>
   <div class="createRoomModal">
       <label>방이름 정해라잉</label>
-      <input name="방이름" placeholder="방 제목" type="text">
+      <input class="roomName" name="roomName" placeholder="방 제목" type="text">
+      <input class="roomPassword" name="방비밀번호" placeholder="방 비밀번호" type="text">
   </div>  
   <canvas id="canvas"></canvas>
 </body>
 <script src="../js/socket.io.js"></script>
 <script>
-  let socket = io()
-  let canvas = document.querySelector('#canvas')
-  let CreateRoomBtn = document.querySelector('.create_room')
-// 유저가 접속하면 모달창 띄워줄거임
-  let loginModal = document.querySelector('.loginModal')
-  let loginModalInput = document.querySelector('.loginModal input')
-  let nickname = ''
-  loginModal.style.display='block'
+  const socket = io()
+  const canvas = document.querySelector('#canvas')
+  const CreateRoomBtn = document.querySelector('.create_room')
+  // 유저가 접속하면 모달창 띄워줄거임
+  const loginModal = document.querySelector('.loginModal')
+  const loginModalInput = document.querySelector('.loginModal input')
+  const nickname = ''
   //데이터 방 목록 받아오고 테이블 쏴주기
   loginModalInput.addEventListener('input',(e)=>{
     nickname = e.target.value
@@ -78,14 +79,14 @@
     if(e.key==='Enter'){
       nickname = nickname.replace(' ','')
       if(nickname === '') return alert('암것도 안적엇다잉')
-      if(nickname.length > 4) return alert('5자이상 안되는데?')
+      if(nickname.length > 7) return alert('8자이상 안되는데?')
       socket.emit('nickname',nickname)
       loginModal.remove()  
     }
   })
-  let loggedPlayer = []
-  let loggedPlayerId = []
-  let userTable = document.querySelector('.player_list table')
+  const loggedPlayer = []
+  const loggedPlayerId = []
+  const userTable = document.querySelector('.player_list table')
   socket.on('userList',(data)=>{
     let {nickname , id} = data
     data.forEach((userData,userIndex) => {
@@ -102,63 +103,77 @@
       userTable.append(tr)
     });
   })
-  let RoomTable = document.querySelector('.room_list table tbody')
+  const RoomTable = document.querySelector('.room_list table tbody')
   socket.on('roomsData',(data)=>{
       //방 목록 받아오기
-      data[0].forEach((room)=>{
-        let {player,roomName,roomNumber} = room
-        let tr = document.createElement('tr')
+      data.forEach((room)=>{
+        const {player,roomName,roomNumber,password} = room
+        const tr = document.createElement('tr')
         let td_left = document.createElement('td')
         let td_center = document.createElement('td')
         let td_right = document.createElement('td')
+        let state = password === '' ? '공개방 /' : '비공개방 /'
         tr.classList.add(roomNumber)
         tr.appendChild(td_right)
         tr.appendChild(td_center)
         tr.appendChild(td_left)
         td_left.innerHTML='<tr>'+'<td>'+ roomNumber + '</td>'+ '</tr>'
         td_center.innerHTML='<tr>'+'<td>'+ roomName + '</td>'+ '</tr>'
-        td_right.innerHTML='<tr>'+'<td>'+ player + '</td>'+ '</tr>'
+        td_right.innerHTML='<tr>'+'<td>'+ state + ' ' + player + '</td>'+ '</tr>'
         RoomTable.append(tr)
       })
   })
   //방생성 버튼을 누르면 서버에게 방 생성 버튼을 눌럿다고 보내줌
   let createRoom = document.querySelector('.createRoomModal')  
-  let createRoomInput = document.querySelector('.createRoomModal input')  
-  let 방제목 = ''
+  let roomNameInput = document.querySelector('.roomName')
+  let roomPasswordInput = document.querySelector('.roomPassword')  
+  let 방정보 = {
+    방제목 : '',
+    방비밀번호 : ''
+  }
   //방제목을 클릭하면 방 입력창 띄워주기
   CreateRoomBtn.addEventListener('click',()=>{
     createRoom.style.display = 'block'
   })
   //input값에 값을 입력하면 방제목에 저장
-  createRoomInput.addEventListener('input',e=>{
+  roomNameInput.addEventListener('input',e=>{
     if(e.target.value.length > 10){
       e.target.value = ''
       alert('7자 이상 못넘겨')
     }
-    방제목 = e.target.value
+    방정보.방제목 = e.target.value
+  })
+  //패스워드 입력창 글자 숫자 제한과 방 비밀번호 설정
+  roomPasswordInput.addEventListener('input',e=>{
+    if(e.target.value.length > 10){
+      e.target.value = ''
+      alert('8자 이상 못넘겨')
+    }
+    방정보.방비밀번호 = e.target.value
   })
   //enter 키를 입력하면 방생성 하고 방이름 데이터와 유저 방만든 유저 넘겨주고 모달창 제거
-  createRoomInput.addEventListener('keydown',e=>{
+  createRoom.addEventListener('keydown',e=>{
     if(e.key === 'Enter'){
-      socket.emit('createRoom',방제목)
-      createRoom.style.display = 'none'      
+      socket.emit('createRoom',방정보)
+      createRoom.remove()   
     }
   })
 //그리고 방 생성 버튼을 누른 인간의 socketid와 방번호를 받아와서 테이블 삽입해줄거임
   socket.on('createRoom',(room)=>{
-    let {player,roomName,roomNumber} = room
+    let {player,roomName,roomNumber,password} = room
     let RoomTable = document.querySelector('.room_list table tbody')
     let tr = document.createElement('tr')
     let td_left = document.createElement('td')
     let td_center = document.createElement('td')
     let td_right = document.createElement('td')
+    let state = password === '' ? '공개방 /' : '비공개방 /'
     tr.classList.add(roomNumber)
-    tr.appendChild(td_right)
+    tr.appendChild(td_right)  
     tr.appendChild(td_center)
     tr.appendChild(td_left)
     td_left.innerHTML='<tr>'+'<td>'+ roomNumber + '</td>'+ '</tr>'
     td_center.innerHTML='<tr>'+'<td>'+ roomName + '</td>'+ '</tr>'
-    td_right.innerHTML='<tr>'+'<td>'+ player + '</td>'+ '</tr>'
+    td_right.innerHTML='<tr>'+'<td>'+ state + ' ' + player + '</td>'+ '</tr>'
     RoomTable.append(tr)
   })
   //방 참가
@@ -167,10 +182,46 @@
       let tr = e.target.parentElement
       let roomName = tr.className
       socket.emit('joinRoom',roomName)
-      canvas.style.display = 'block'
     }
   })
-  
+  //방에 패스워드가 있다면 패스워드창 띄워주기
+  socket.on('roomPassword',(password)=>{
+    let modal = document.createElement('div')
+    let modalBox = document.createElement('div')
+    let label = document.createElement('label')
+    let input = document.createElement('input')
+    let button = document.createElement('button')
+    modal.classList.add('passwordModal')
+    modal.appendChild(modalBox)
+    modalBox.appendChild(button)
+    modalBox.appendChild(label)
+    modalBox.appendChild(input)
+    button.innerText = 'X'
+    label.innerText ='방비밀번호는..?'
+    document.querySelector('body').append(modal)  
+    let value = ''
+    input.addEventListener('input',(e)=>{
+      value = e.target.value
+    })
+    input.addEventListener('keydown',(e)=>{
+      if(e.key === 'Enter' && value === password){
+        socket.emit('passwordMatch','참가')
+        modal.remove()
+      }else if(e.key === 'Enter') return alert('패스워드가 일치하지 않습니다.')
+    })
+    button.addEventListener('click',(e)=>{
+      modal.remove()
+    })
+  })
+  //유저가 나가면 할 일 
+  socket.on('disconnectUser',(disconnectUser)=>{
+    //유저 테이블에서 삭제해 줄거임
+    userTable.childNodes.forEach(table=>{
+      if(table.className === disconnectUser){
+        table.remove()
+      }
+    })
+  })
 </script>
 <script src="../js/canvas.js"></script>
 

@@ -9,17 +9,19 @@ const io = new Server(http)
 app.use(express.static(__dirname + "/public"));
 
 http.listen(8080,()=>{
-  console.log('8080포트로 접속완료')
 })
 
 app.get('/',function(요청,응답){
-  응답.render('index.ejs')
-})  
+  응답.sendFile(__dirname + ('/views/index.html'))
+})
+
+
 let roomDataArr = []
 let user = []
 let CountArr = []
 let RoomCount = 1
 io.on('connection',function(socket){
+  console.log(socket.id)
   socket.on('nickname',(data)=>{
     user.push(
       {
@@ -34,6 +36,7 @@ io.on('connection',function(socket){
   //방생성 버튼이 눌리면 방 번호와 유저 정보 보내주기
   
   socket.on('createRoom',function(data){
+    let {방제목,방비밀번호} = data
     if(CountArr.includes(RoomCount)){
       RoomCount +=1
       CountArr.push(RoomCount)
@@ -49,15 +52,13 @@ io.on('connection',function(socket){
     let roomData ={
       'roomNumber' : `room${RoomCount}`,
       'player' : userName[0] ? userName[0].nickname : '이름 안정했자나',
-      'roomName' : data
+      'roomName' : 방제목,
+      'password' : 방비밀번호
     }
     roomDataArr.push(roomData)
     io.emit('createRoom',roomData)
   })
   //소켓을 나가면 유저 데이터를 없애줌
-  socket.on('babo',(data)=>{
-    console.log(data)
-  })
   socket.on("disconnect", (reason) => {
     //유저가 나가면 나간 유저 배열 뒤져서 삭제하고 나간 유저이름
      user.forEach((e,i)=>{
@@ -66,12 +67,23 @@ io.on('connection',function(socket){
         io.emit('disconnectUser',e.nickname)
       }
      })
-     
   });
   socket.on('joinRoom',(data)=>{
-    socket.join(data)
-    console.log(socket.id,`${data}접속`)
+    roomDataArr.forEach(room=>{
+      let {roomNumber,password} = room
+      if(data === roomNumber && password === '' ){
+        console.log(data,'참가')
+        socket.join(data)
+      }else if(data === roomNumber && password !== ''){
+        io.to(socket.id).emit('roomPassword',password)
+      }
+    })
+    socket.on('passwordMatch',(message)=>{
+      console.log(data,message)
+      socket.join(data)
+    })
   })
-    roomDataArr[0] && io.to(socket.id).emit('roomsData',[roomDataArr,user])
+  
+    roomDataArr[0] && io.to(socket.id).emit('roomsData',roomDataArr)
 })
   
