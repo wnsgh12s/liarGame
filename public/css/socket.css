@@ -118,11 +118,10 @@ body{
 
 #canvas {
   position:absolute;
-  display: none;
+  display: block;
   top: 0;
   width: 100%;
   height: 100%;
-  background-color: #eee;
 }
 .createRoomModal {
   display: none;
@@ -172,4 +171,77 @@ body{
   padding: 5px;
   text-align: center;
   margin-bottom: 20px;
+}
+/* 게임시작시 모달 */
+.gameModal{
+  display: none;
+  position: absolute;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  background: #4A569D no-repeat center center /cover;
+}
+.gameModal .gameModalBox {
+  position: relative;
+  width: 70%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%,-50%);
+  padding: 30px;
+  background-color: #eee;
+
+}
+.gameModalBox .topBox{
+  display: flex;
+  justify-content: space-between;
+  height: 296px;
+  margin-bottom: 45px;
+}
+/* 왼쪽 플레이어 */
+.topBox .leftPlayers{
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+/* 오른쪽 플레이어 */
+.topBox .rightPlayers{
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+/* 채팅보드 */
+.topBox .chatBoard {
+  border: 5px solid #4A569D;
+  width: 505px;
+  text-align: left;
+  overflow: scroll;
+}
+.topBox .chatBoard div {
+  background-color: #4A569D;
+  width: 100%;
+  padding: 10px;
+  box-sizing: border-box;
+  white-space: pre-line;
+  word-break: break-all;
+}
+.topBox .chatBoard::-webkit-scrollbar{
+  display: none;
+}
+.gameModalBox .bottomBox{
+  display: flex;
+  justify-content: space-around;
+}
+/* 플레이어박스 스타일 */
+[class ^= 'player']{
+  border: 5px solid;
+  width: 162px;
+  height: 126px;
+  background-color: #4A569D;
+}
+[class ^= 'player'] canvas {
+  width: 100%;
+  height: 100%;
+  background-color: #eee;
+
 }
