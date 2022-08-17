@@ -20,13 +20,13 @@ let roomDataArr = []
 let user = []
 let CountArr = []
 let RoomCount = 1
+let roomList = []
 io.on('connection',function(socket){
-  console.log(socket.id)
-  socket.on('nickname',(data)=>{
+   socket.on('nickname',(data)=>{
     user.push(
       {
         'nickname' : data,
-        'id' : socket.id
+        'id' : socket.id  
       }
     )
     //애들이 들어올때마다 유저 닉네임 쏴주면
@@ -53,14 +53,19 @@ io.on('connection',function(socket){
       'roomNumber' : `room${RoomCount}`,
       'player' : userName[0] ? userName[0].nickname : '이름 안정했자나',
       'roomName' : 방제목,
-      'password' : 방비밀번호
+      'password' : 방비밀번호,
+      'id' : socket.id
     }
     roomDataArr.push(roomData)
+    console.log(io.sockets.adapter.rooms.get) 
     io.emit('createRoom',roomData)
   })
+
+  
   //소켓을 나가면 유저 데이터를 없애줌
-  socket.on("disconnect", (reason) => {
-    //유저가 나가면 나간 유저 배열 뒤져서 삭제하고 나간 유저이름
+  socket.on("disconnect", (data) => {
+    console.log(data)
+    //유저가 나가면 나간 유저 배열 뒤져서 삭제하기
      user.forEach((e,i)=>{
       if(e.id === socket.id){
         user.splice(i,1)
@@ -72,18 +77,30 @@ io.on('connection',function(socket){
     roomDataArr.forEach(room=>{
       let {roomNumber,password} = room
       if(data === roomNumber && password === '' ){
-        console.log(data,'참가')
         socket.join(data)
+        console.log('패스워드없는데?',socket.id)
+        io.to(socket.id).emit('noPassword','참가')
       }else if(data === roomNumber && password !== ''){
-        io.to(socket.id).emit('roomPassword',password)
+        console.log('패스워드있는데?',socket.id)
+        io.to(socket.id).emit('roomPassword', [password,data])
       }
     })
-    socket.on('passwordMatch',(message)=>{
-      console.log(data,message)
-      socket.join(data)
-    })
   })
-  
+
+  socket.on('passwordMatch',(room)=>{
+    socket.join(room)
+  })
+
+
+
+  socket.on('leaveRoom',(data)=>{
+    let arr = []
+    socket.leave(data)
+    if(io.sockets.adapter.rooms.get(data) === undefined){
+      io.emit('deleteRoom',data)
+    }
+    //나갔을때 방이없으면 쏴주자
+  })
     roomDataArr[0] && io.to(socket.id).emit('roomsData',roomDataArr)
 })
   
