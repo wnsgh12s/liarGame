@@ -11,7 +11,7 @@ app.use(express.static(__dirname + "/public"));
 http.listen(8080,()=>{
 })
 
-app.get('/',function(요청,응답){
+app.get('/',function(요청,응답){  
   응답.sendFile(__dirname + ('/views/index.html'))
 })
 
@@ -20,7 +20,6 @@ let roomDataArr = []
 let user = []
 let CountArr = []
 let RoomCount = 1
-let roomList = []
 io.on('connection',function(socket){
    socket.on('nickname',(data)=>{
     user.push(
@@ -57,8 +56,8 @@ io.on('connection',function(socket){
       'id' : socket.id
     }
     roomDataArr.push(roomData)
-    console.log(io.sockets.adapter.rooms.get) 
     io.emit('createRoom',roomData)
+    io.to(socket.id).emit('oneCreateRoom',roomData)
   })
 
   
@@ -78,10 +77,8 @@ io.on('connection',function(socket){
       let {roomNumber,password} = room
       if(data === roomNumber && password === '' ){
         socket.join(data)
-        console.log('패스워드없는데?',socket.id)
-        io.to(socket.id).emit('noPassword','참가')
+        io.to(socket.id).emit('noPassword',data)
       }else if(data === roomNumber && password !== ''){
-        console.log('패스워드있는데?',socket.id)
         io.to(socket.id).emit('roomPassword', [password,data])
       }
     })
@@ -91,15 +88,16 @@ io.on('connection',function(socket){
     socket.join(room)
   })
 
-
-
   socket.on('leaveRoom',(data)=>{
-    let arr = []
     socket.leave(data)
     if(io.sockets.adapter.rooms.get(data) === undefined){
       io.emit('deleteRoom',data)
+      roomDataArr.forEach((e,i)=>{
+        if(e = data){
+          roomDataArr.splice(i,1)
+        }
+      })
     }
-    //나갔을때 방이없으면 쏴주자
   })
     roomDataArr[0] && io.to(socket.id).emit('roomsData',roomDataArr)
 })

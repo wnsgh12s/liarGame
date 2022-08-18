@@ -1,5 +1,10 @@
 const socket = io()
-console.log(socket)
+
+socket.on('disconnect',(e)=>{
+  alert('서버와의 연결이 끊겼습니다.')
+  
+})
+
   // 유저가 접속하면 모달창 띄워줄거임
   const loginModal = document.querySelector('.loginModal')
   const loginModalInput = document.querySelector('.loginModal input')
@@ -99,6 +104,12 @@ console.log(socket)
       addGameRoom()   
     }
   })
+  // 생성한 사람에게만 넘기는 정보
+  socket.on('oneCreateRoom',(roomData)=>{
+    let {roomNumber} = roomData
+    joinedRoom = roomNumber
+  })
+
 //그리고 방 생성 버튼을 누른 인간의 socketid와 방번호를 받아와서 테이블 삽입해줄거임
   socket.on('createRoom',(room)=>{
     let {player,roomName,roomNumber,password} = room
@@ -115,7 +126,6 @@ console.log(socket)
     td_center.innerHTML='<tr>'+'<td>'+ roomName + '</td>'+ '</tr>'
     td_right.innerHTML='<tr>'+'<td>'+ state + ' ' + player + '</td>'+ '</tr>'
     RoomTable.append(tr)
-    joinedRoom = roomNumber
   })
 
   //방 참가
@@ -124,7 +134,6 @@ console.log(socket)
       let tr = e.target.parentElement
       let roomNumber = tr.className
       socket.emit('joinRoom',roomNumber)
-      joinedRoom = roomNumber
     }
   })
   
@@ -186,6 +195,7 @@ console.log(socket)
   //패스워드 없으면 그냥참가
   socket.on('noPassword',(data)=>{
     addGameRoom()
+    joinedRoom = data
   })
   //방에 패스워드가 있다면 패스워드창 띄워주기
   socket.on('roomPassword',(data)=>{
@@ -209,6 +219,7 @@ console.log(socket)
     input.addEventListener('keydown',(e)=>{
       if(e.key === 'Enter' && value === data[0]){
         socket.emit('passwordMatch',data[1])
+        joinedRoom = data[1]
         modal.remove()
         addGameRoom() 
       }else if(e.key === 'Enter') return alert('패스 워드))가 일치하지 않습니다.')
@@ -232,6 +243,7 @@ console.log(socket)
     })
   })
   socket.on('deleteRoom',(data)=>{
+    console.log(data)
     let deleteRoom = document.querySelector('.' + data)
     deleteRoom.remove()
   })
