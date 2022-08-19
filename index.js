@@ -21,6 +21,10 @@ let user = []
 let CountArr = []
 let RoomCount = 1
 io.on('connection',function(socket){
+  //유저가 들어오면 유저목록과 생성된 방정보 쏴주기
+  user[0] && io.emit('userList',user)
+  roomDataArr[0] && io.to(socket.id).emit('roomsData',roomDataArr)
+  //유적 닉네임 입력하면 유저arr에 넣어주기
    socket.on('nickname',(data)=>{
     user.push(
       {
@@ -29,8 +33,7 @@ io.on('connection',function(socket){
         'joinedRoom' : ''  
       }
     )
-    //애들이 들어올때마다 유저 닉네임 쏴주면
-    //다업뎃 되는데?
+    //애들이 들어올때마다 유저 닉네임 쏴주기
     io.emit('userList',user)
   })
   //방생성 버튼이 눌리면 방 번호와 유저 정보 보내주기
@@ -70,7 +73,10 @@ io.on('connection',function(socket){
   socket.on("disconnect", (data) => {
     //유저가 나가면 나간 유저 배열 뒤져서 삭제하기
      user.forEach((e,i)=>{
-      if(e.id === socket.id && io.sockets.adapter.rooms.get(e.joinedRoom) === undefined){
+      if(e.id === socket.id && e.id === socket.id && e.joinedRoom === ''){
+        user.splice(i,1)
+        io.emit('disconnectUser',e.nickname)
+      }else if(e.id === socket.id && io.sockets.adapter.rooms.get(e.joinedRoom) === undefined){
         user.splice(i,1)
         io.emit('deleteRoom',e.joinedRoom)
         roomDataArr.forEach((room,i)=>{
@@ -78,15 +84,11 @@ io.on('connection',function(socket){
           roomDataArr.splice(i,1)        
         }
         io.emit('disconnectUser',e.nickname)
-        console.log('닉네임',e.nickname)
-      })}else if(e.id === socket.id){
-        user.splice(i,1)
-        io.emit('disconnectUser',e.nickname)
-        console.log('닉네임',e.nickname)
-      }
+      })}
+      
      })
   });
-
+//방에 접속하려는 유저 패스워드가 맞는지 틀린지 확인하기
   socket.on('joinRoom',(data)=>{
     roomDataArr.forEach(room=>{
       let {roomNumber,password} = room
@@ -103,7 +105,7 @@ io.on('connection',function(socket){
       }
     })
   })
-
+//패스워드가 일치하면 접속시키기
   socket.on('passwordMatch',(room)=>{
     user.forEach(e=>{
       if(socket.id === e.id) {
@@ -112,7 +114,7 @@ io.on('connection',function(socket){
     })
     socket.join(room)
   })
-
+//방 나가기 버튼을 클릭하면 유저 목록과 방데이터에서 제거
   socket.on('leaveRoom',(data)=>{
     socket.leave(data)
     if(io.sockets.adapter.rooms.get(data) === undefined){
@@ -124,6 +126,5 @@ io.on('connection',function(socket){
       })  
     }
   })
-    roomDataArr[0] && io.to(socket.id).emit('roomsData',roomDataArr)
 })
   

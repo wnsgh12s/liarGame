@@ -6,6 +6,9 @@ socket.on('disconnect',(e)=>{
 })
 
   // 유저가 접속하면 모달창 띄워줄거임
+  let joinedRoom = ''
+  const loggedPlayer = []
+  const loggedPlayerId = []
   const loginModal = document.querySelector('.loginModal')
   const loginModalInput = document.querySelector('.loginModal input')
   loginModalInput.focus()
@@ -24,17 +27,14 @@ socket.on('disconnect',(e)=>{
       loginModal.remove()  
     }
   })
-  let joinedRoom = ''
-  const loggedPlayer = []
-  const loggedPlayerId = []
   const userTable = document.querySelector('.player_list table')
   socket.on('userList',(data)=>{
-    let {nickname , id} = data
+    console.log(data)
     data.forEach((userData,userIndex) => {
       let {nickname,id} = userData
       //유저목록 받아 와버리기~
       // 이미 닉네임이 table에 올라가 있다면 리턴~ 안올릴거야
-      if(loggedPlayer.includes(nickname)) return
+      if(loggedPlayer.includes(nickname)) return 
       loggedPlayer.push(nickname)
       let tr = document.createElement('tr')
       let td = document.createElement('td')
