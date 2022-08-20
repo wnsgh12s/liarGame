@@ -183,14 +183,26 @@ body{
   text-align: center;
   background: #4A569D no-repeat center center /cover;
 }
-.gameModal button{
-  position: absolute;
+.buttonBox{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.buttonBox button{
   padding: 5px;
-  border: 2px;
+  border: 2px solid ;
   display: block;
-  top: 30px;
-  right: 30px;
   cursor: pointer;
+}
+.buttonBox .subject {
+  padding: 5px;
+  border: 2px solid #DC2424;
+  margin-right: 30px;
+}
+.buttonBox .suggestion {
+  padding: 5px;
+  border: 2px solid #DC2424;
+  margin-right: 30px;
 }
 .gameModal .gameModalBox {
   position: relative;

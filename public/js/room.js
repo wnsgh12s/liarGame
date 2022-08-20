@@ -1,7 +1,6 @@
 const socket = io()
 
 socket.on('disconnect',(e)=>{
-  alert('서버와의 연결이 끊겼습니다.')
   
 })
 
@@ -28,6 +27,7 @@ socket.on('disconnect',(e)=>{
     }
   })
   const userTable = document.querySelector('.player_list table')
+
   socket.on('userList',(data)=>{
     console.log(data)
     data.forEach((userData,userIndex) => {
@@ -44,24 +44,28 @@ socket.on('disconnect',(e)=>{
       userTable.append(tr)
     });
   })
+  function addRoom(player,roomName,roomNumber,password){
+    let tr = document.createElement('tr')
+    let td_left = document.createElement('td')
+    let td_center = document.createElement('td')
+    let td_right = document.createElement('td')
+    let state = password === '' ? '공개방 /' : '비공개방 /'
+    tr.classList.add(roomNumber)
+    tr.appendChild(td_right)  
+    tr.appendChild(td_center)
+    tr.appendChild(td_left)
+    td_left.innerHTML='<tr>'+'<td>'+ roomNumber + '</td>'+ '</tr>'
+    td_center.innerHTML='<tr>'+'<td>'+ roomName + '</td>'+ '</tr>'
+    td_right.innerHTML='<tr>'+'<td>'+ state + ' ' + player + '</td>'+ '</tr>'
+    RoomTable.append(tr)
+  }
+
   const RoomTable = document.querySelector('.room_list table tbody')
   socket.on('roomsData',(data)=>{
       //방 목록 받아오기
       data.forEach((room)=>{
         const {player,roomName,roomNumber,password} = room
-        const tr = document.createElement('tr')
-        let td_left = document.createElement('td')
-        let td_center = document.createElement('td')
-        let td_right = document.createElement('td')
-        let state = password === '' ? '공개방 /' : '비공개방 /'
-        tr.classList.add(roomNumber)
-        tr.appendChild(td_right)  
-        tr.appendChild(td_center)
-        tr.appendChild(td_left)
-        td_left.innerHTML='<tr>'+'<td>'+ roomNumber + '</td>'+ '</tr>'
-        td_center.innerHTML='<tr>'+'<td>'+ roomName + '</td>'+ '</tr>'
-        td_right.innerHTML='<tr>'+'<td>'+ state + ' ' + player + '</td>'+ '</tr>'
-        RoomTable.append(tr)
+        addRoom(player,roomName,roomNumber,password)
       })
   })
   //방생성 버튼을 누르면 서버에게 방 생성 버튼을 눌럿다고 보내줌
@@ -113,19 +117,7 @@ socket.on('disconnect',(e)=>{
 //그리고 방 생성 버튼을 누른 인간의 socketid와 방번호를 받아와서 테이블 삽입해줄거임
   socket.on('createRoom',(room)=>{
     let {player,roomName,roomNumber,password} = room
-    let tr = document.createElement('tr')
-    let td_left = document.createElement('td')
-    let td_center = document.createElement('td')
-    let td_right = document.createElement('td')
-    let state = password === '' ? '공개방 /' : '비공개방 /'
-    tr.classList.add(roomNumber)
-    tr.appendChild(td_right)  
-    tr.appendChild(td_center)
-    tr.appendChild(td_left)
-    td_left.innerHTML='<tr>'+'<td>'+ roomNumber + '</td>'+ '</tr>'
-    td_center.innerHTML='<tr>'+'<td>'+ roomName + '</td>'+ '</tr>'
-    td_right.innerHTML='<tr>'+'<td>'+ state + ' ' + player + '</td>'+ '</tr>'
-    RoomTable.append(tr)
+    addRoom(player,roomName,roomNumber,password)
   })
 
   //방 참가
@@ -139,6 +131,9 @@ socket.on('disconnect',(e)=>{
   
   function addGameRoom(){
     let gameModal = document.createElement('div')
+    let buttonBox = document.createElement('div')
+    let suggestion = document.createElement('div')
+    let subject = document.createElement('div')
     let button = document.createElement('button')
     let gameModalBox = document.createElement('div')
     let topBox = document.createElement('div')
@@ -169,8 +164,19 @@ socket.on('disconnect',(e)=>{
     player4.classList.add('player4')
     player5.classList.add('player5')
     player6.classList.add('player6')
+    buttonBox.classList.add('buttonBox')
+    gameModal.appendChild(buttonBox)
+    //주제
+    subject.innerText='주제 : 영화'
+    subject.classList.add('subject')
+    buttonBox.appendChild(subject)
+    //제시어
+    suggestion.innerText='제시어 : 탑건'
+    suggestion.classList.add('suggestion')
+    buttonBox.appendChild(suggestion)
     button.innerText = '나가기'
-    gameModal.appendChild(button)
+    buttonBox.appendChild(button)
+    //플레이어 ui
     gameModal.appendChild(gameModalBox)
     gameModalBox.appendChild(topBox)
     gameModalBox.appendChild(bottomBox)
@@ -186,7 +192,7 @@ socket.on('disconnect',(e)=>{
     bottomBox.appendChild(player5)
     bottomBox.appendChild(player6)
     document.querySelector('body').append(gameModal)
-    let leaveRoomBtn = document.querySelector('div.gameModal > button')
+    let leaveRoomBtn = document.querySelector('body > div.gameModal > div.buttonBox > button')
     leaveRoomBtn?.addEventListener('click',(e)=>{
     socket.emit('leaveRoom',joinedRoom)
     gameModal.remove()
@@ -222,7 +228,7 @@ socket.on('disconnect',(e)=>{
         joinedRoom = data[1]
         modal.remove()
         addGameRoom() 
-      }else if(e.key === 'Enter') return alert('패스 워드))가 일치하지 않습니다.')
+      }else if(e.key === 'Enter') return alert('패스 워드가 일치하지 않습니다.')
     })
     //버튼끄기
     button.addEventListener('click',(e)=>{
