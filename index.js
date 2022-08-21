@@ -1,4 +1,3 @@
-const e = require('express');
 const express = require('express');
 const app = express()
 app.set('view engine', 'ejs');
@@ -56,6 +55,7 @@ io.on('connection',function(socket){
       'player' : userName[0] ? userName[0].nickname : '이름 안정했자나',
       'roomName' : 방제목,
       'password' : 방비밀번호,
+      'participants' : 1,
       'id' : socket.id
     }
     user.forEach(e=>{
@@ -74,16 +74,18 @@ io.on('connection',function(socket){
     //유저가 나가면 나간 유저 배열 뒤져서 삭제하기
      user.forEach((e,i)=>{
       if(e.id === socket.id && e.id === socket.id && e.joinedRoom === ''){
+        e.participants -=1
         user.splice(i,1)
         io.emit('disconnectUser',e.nickname)
       }else if(e.id === socket.id && io.sockets.adapter.rooms.get(e.joinedRoom) === undefined){
+        e.participants -=1
         user.splice(i,1)
         io.emit('deleteRoom',e.joinedRoom)
+        io.emit('disconnectUser',e.nickname)
         roomDataArr.forEach((room,i)=>{
         if(room.roomNumber === e.joinedRoom){
           roomDataArr.splice(i,1)        
         }
-        io.emit('disconnectUser',e.nickname)
       })}
       
      })
@@ -92,12 +94,14 @@ io.on('connection',function(socket){
   socket.on('joinRoom',(data)=>{
     roomDataArr.forEach(room=>{
       let {roomNumber,password} = room
+      //패스워드가 없으면 접속시키기
       if(data === roomNumber && password === '' ){
         socket.join(data)
         io.to(socket.id).emit('noPassword',data)
         user.forEach(e=>{
           if(socket.id === e.id) {
             e.joinedRoom = roomNumber
+            e.participants ++
           }
         })
       }else if(data === roomNumber && password !== ''){
@@ -110,6 +114,7 @@ io.on('connection',function(socket){
     user.forEach(e=>{
       if(socket.id === e.id) {
         e.joinedRoom = room
+        e.participants ++
       }
     })
     socket.join(room)
@@ -121,6 +126,8 @@ io.on('connection',function(socket){
       io.emit('deleteRoom',data)
       roomDataArr.forEach((e,i)=>{
         if(e.roomNumber === data){
+          e.joinedRoom = ''
+          e.participants -=1
           roomDataArr.splice(i,1)
         }
       })  

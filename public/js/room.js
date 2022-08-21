@@ -29,7 +29,6 @@ socket.on('disconnect',(e)=>{
   const userTable = document.querySelector('.player_list table')
 
   socket.on('userList',(data)=>{
-    console.log(data)
     data.forEach((userData,userIndex) => {
       let {nickname,id} = userData
       //유저목록 받아 와버리기~
@@ -44,7 +43,7 @@ socket.on('disconnect',(e)=>{
       userTable.append(tr)
     });
   })
-  function addRoom(player,roomName,roomNumber,password){
+  function addRoom(player,roomName,roomNumber,password,participants){
     let tr = document.createElement('tr')
     let td_left = document.createElement('td')
     let td_center = document.createElement('td')
@@ -56,7 +55,7 @@ socket.on('disconnect',(e)=>{
     tr.appendChild(td_left)
     td_left.innerHTML='<tr>'+'<td>'+ roomNumber + '</td>'+ '</tr>'
     td_center.innerHTML='<tr>'+'<td>'+ roomName + '</td>'+ '</tr>'
-    td_right.innerHTML='<tr>'+'<td>'+ state + ' ' + player + '</td>'+ '</tr>'
+    td_right.innerHTML='<tr>'+'<td>'+ state + ' ' + participants + '</td>'+ '</tr>'
     RoomTable.append(tr)
   }
 
@@ -64,8 +63,8 @@ socket.on('disconnect',(e)=>{
   socket.on('roomsData',(data)=>{
       //방 목록 받아오기
       data.forEach((room)=>{
-        const {player,roomName,roomNumber,password} = room
-        addRoom(player,roomName,roomNumber,password)
+        const {player,roomName,roomNumber,password,participants} = room
+        addRoom(player,roomName,roomNumber,password,participants)
       })
   })
   //방생성 버튼을 누르면 서버에게 방 생성 버튼을 눌럿다고 보내줌
@@ -116,8 +115,8 @@ socket.on('disconnect',(e)=>{
 
 //그리고 방 생성 버튼을 누른 인간의 socketid와 방번호를 받아와서 테이블 삽입해줄거임
   socket.on('createRoom',(room)=>{
-    let {player,roomName,roomNumber,password} = room
-    addRoom(player,roomName,roomNumber,password)
+    let {player,roomName,roomNumber,password,participants} = room
+    addRoom(player,roomName,roomNumber,password,participants)
   })
 
   //방 참가
@@ -237,7 +236,9 @@ socket.on('disconnect',(e)=>{
   })
   //유저가 나가면 할 일 
   socket.on('disconnectUser',(disconnectUser)=>{
+    console.log('실행은되네')
     userTable.childNodes.forEach(table=>{
+      console.log(table,disconnectUser)
       if(table.className === disconnectUser){
         table.remove()
       }
@@ -249,11 +250,9 @@ socket.on('disconnect',(e)=>{
     })
   })
   socket.on('deleteRoom',(data)=>{
-    console.log(data)
     let deleteRoom = document.querySelector('.' + data)
-    deleteRoom.remove()
+    deleteRoom?.remove()
   })
-
 
 //유저가 방을 나가면
   
