@@ -130,6 +130,7 @@ socket.on('disconnect',(e)=>{
   
   function addGameRoom(){
     let gameModal = document.createElement('div')
+    let readyBtn = document.createElement('button')
     let buttonBox = document.createElement('div')
     let suggestion = document.createElement('div')
     let subject = document.createElement('div')
@@ -145,7 +146,7 @@ socket.on('disconnect',(e)=>{
     let player7 = document.createElement('div')
     let bottomBox = document.createElement('div')
     let player3 = document.createElement('div')
-    let player4= document.createElement('div')
+    let player4 = document.createElement('div')
     let player5 = document.createElement('div')
     let player6 = document.createElement('div')
     gameModal.classList.add('gameModal')
@@ -165,6 +166,9 @@ socket.on('disconnect',(e)=>{
     player6.classList.add('player6')
     buttonBox.classList.add('buttonBox')
     gameModal.appendChild(buttonBox)
+    //레디버튼
+    readyBtn.classList.add('readyBtn')
+    readyBtn.innerText = '준비'
     //주제
     subject.innerText='주제 : 영화'
     subject.classList.add('subject')
@@ -173,8 +177,10 @@ socket.on('disconnect',(e)=>{
     suggestion.innerText='제시어 : 탑건'
     suggestion.classList.add('suggestion')
     buttonBox.appendChild(suggestion)
+    button.classList.add('exitBtn')
     button.innerText = '나가기'
     buttonBox.appendChild(button)
+    buttonBox.appendChild(readyBtn)
     //플레이어 ui
     gameModal.appendChild(gameModalBox)
     gameModalBox.appendChild(topBox)
@@ -191,12 +197,19 @@ socket.on('disconnect',(e)=>{
     bottomBox.appendChild(player5)
     bottomBox.appendChild(player6)
     document.querySelector('body').append(gameModal)
-    let leaveRoomBtn = document.querySelector('body > div.gameModal > div.buttonBox > button')
+    let leaveRoomBtn = document.querySelector('body div.gameModal div.buttonBox .exitBtn')
+    let _readyBtn = document.querySelector('body div.gameModal div.buttonBox .readyBtn')
     leaveRoomBtn?.addEventListener('click',(e)=>{
     socket.emit('leaveRoom',joinedRoom)
     gameModal.remove()
   })
+  _readyBtn?.addEventListener('click',(e)=>{
+    socket.emit('ready',socket.id)
+  })
   }
+  socket.on('ready',(data)=>{
+    console.log(data)
+  })
   //패스워드 없으면 그냥참가
   socket.on('noPassword',(data)=>{
     addGameRoom()
