@@ -1,7 +1,7 @@
 const socket = io()
 
 socket.on('disconnect',(e)=>{
-  
+  location.reload()
 })
 
   // 유저가 접속하면 모달창 띄워줄거임
@@ -127,7 +127,7 @@ socket.on('disconnect',(e)=>{
       socket.emit('joinRoom',roomNumber)
     }
   })
-  
+  //방추가
   function addGameRoom(){
     let gameModal = document.createElement('div')
     let readyBtn = document.createElement('button')
@@ -201,14 +201,25 @@ socket.on('disconnect',(e)=>{
     let _readyBtn = document.querySelector('body div.gameModal div.buttonBox .readyBtn')
     leaveRoomBtn?.addEventListener('click',(e)=>{
     socket.emit('leaveRoom',joinedRoom)
+    joinedRoom = ''
     gameModal.remove()
   })
   _readyBtn?.addEventListener('click',(e)=>{
-    socket.emit('ready',socket.id)
+    socket.emit('ready',joinedRoom)
   })
   }
-  socket.on('ready',(data)=>{
-    console.log(data)
+
+  socket.on('ready',(player)=>{
+    let {nickname,ready,liar,id} = player
+    console.log(player)
+    // 준비를 했으면 준비한 유저의  
+    let playerBox = document.querySelector('body > div.gameModal > div.gameModalBox > div.topBox > div.leftPlayers > div.player1')
+    if(ready){  
+      playerBox.style.background='red'
+    }else{
+      console.log('아님')
+      playerBox.style.background='#eee'
+    }
   })
   //패스워드 없으면 그냥참가
   socket.on('noPassword',(data)=>{
@@ -249,7 +260,6 @@ socket.on('disconnect',(e)=>{
   })
   //유저가 나가면 할 일 
   socket.on('disconnectUser',(disconnectUser)=>{
-    console.log('실행은되네')
     userTable.childNodes.forEach(table=>{
       console.log(table,disconnectUser)
       if(table.className === disconnectUser){

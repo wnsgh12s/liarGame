@@ -1,3 +1,4 @@
+const Room = require('./class')
 const express = require('express');
 const app = express()
 app.set('view engine', 'ejs');
@@ -45,19 +46,31 @@ io.on('connection',function(socket){
       CountArr.push(RoomCount)
     }
     socket.join(`room${RoomCount}`)
-    //유저 닉네임과 방 생성 id가 일치하는 이름만 빼기(방 생성자를 저장하기 위한..)    
-    let userName  = user.filter(e=>{
-      if(e.id === socket.id) return e.nickname  
+    //유저 닉네임과 방   생성 id가 일치하는 이름만 빼기(방 생성자를 저장하기 위한..)    
+    let userName  = user.reduce((acc,cur)=>{
+      if(cur.id === socket.id){
+        acc = cur
+      }
+      return acc
     })
     //방 정보 사용자에게 내보내기
     let roomData ={
       'roomNumber' : `room${RoomCount}`,
-      'player' : [userName[0] ? userName[0].nickname : '이름 안정했자나'],
+      'player' : {},
       'roomName' : 방제목,
       'password' : 방비밀번호,
       'participants' : 1,
       'id' : socket.id
     }
+    //플레이어 정보
+    roomData.player[socket.id] = {
+      'nickname' : userName.nickname,
+      'ready': false,
+      'liar' : false,
+      'id' : socket.id,
+      'playNumber' : 1
+    }
+
     user.forEach(e=>{
       if(socket.id === e.id) {
         e.joinedRoom = `room${RoomCount}`
@@ -73,38 +86,63 @@ io.on('connection',function(socket){
   socket.on("disconnect", (data) => {
     //유저가 나가면 나간 유저 배열 뒤져서 삭제하기
      user.forEach((e,i)=>{
-      if(e.id === socket.id && e.id === socket.id && e.joinedRoom === ''){
-        user.splice(i,1)
+      //소켓아이디가 일치하고 참가한 방이 없을때
+      if(e.id === socket.id && e.joinedRoom === ''){
+        console.log('방이없음')
         io.emit('disconnectUser',e.nickname)
-      }else if(e.id === socket.id && io.sockets.adapter.rooms.get(e.joinedRoom) === undefined){
         user.splice(i,1)
+        //소켓 아이디가 일치하고 참가한 방이 있는데 방의 마지막 유저일때
+      }else if(e.id === socket.id && io.sockets.adapter.rooms.get(e.joinedRoom) === undefined){
+        console.log('방이있고 방이없어짐')
         io.emit('deleteRoom',e.joinedRoom)
         io.emit('disconnectUser',e.nickname)
         roomDataArr.forEach((room,i)=>{
-        if(room.roomNumber === e.joinedRoom){
-          roomDataArr.splice(i,1)
-          room.participants -=1        
-        }
-      })}
-      
-     })
+          let {participants,roomNumber} = room
+          if(roomNumber === e.joinedRoom){
+            roomDataArr.splice(i,1)
+            room.participants -= 1
+            user.splice(i,1)
+          }
+        })
+        //소켓 아이디 일치하고 참가한 방이 있을때
+      }else if(e.id === socket.id && e.joinedRoom !== ''){
+        console.log('방이있기만함')
+        roomDataArr.forEach((room,i)=>{
+          let {roomNumber} = room
+          if(roomNumber === e.joinedRoom){
+            room.participants -= 1
+            user.splice(i,1)       
+          }
+        })
+      }
+    })
   });
 //방에 접속하려는 유저 패스워드가 맞는지 틀린지 확인하기
   socket.on('joinRoom',(data)=>{
-    roomDataArr.forEach(room=>{
+    roomDataArr.forEach((room)=>{
       let {roomNumber,password} = room
       //패스워드가 없으면 접속시키기
-      if(data === roomNumber && password === '' ){
+      if(data === roomNumber && password === ''){
         socket.join(data)
         io.to(socket.id).emit('noPassword',data)
-        user.forEach(e=>{
-          if(socket.id === e.id) {
-            e.joinedRoom = roomNumber 
+        user.forEach(user=>{
+          let {nickname,id} = user
+          if(socket.id === id) {
+            room.participants ++
+            room.player[socket.id] = {
+              nickname: nickname,
+              id: socket.id,
+              ready: false,
+              liar: false,
+              playNumber : room.participants
+            }
+            user.joinedRoom = roomNumber
           }
         })
       }else if(data === roomNumber && password !== ''){
         io.to(socket.id).emit('roomPassword', [password,data])
       }
+      console.log(roomDataArr[0].participants)
     })
   })
 //패스워드가 일치하면 접속시키기
@@ -121,21 +159,32 @@ io.on('connection',function(socket){
     socket.leave(data)
     if(io.sockets.adapter.rooms.get(data) === undefined){
       io.emit('deleteRoom',data)
-      roomDataArr.forEach((e,i)=>{
-        if(e.roomNumber === data){
-          e.joinedRoom = ''
-          e.participants -=1
+      roomDataArr.forEach((room,i)=>{
+        let {roomNumber,joinedRoom,participants} = room
+        if(roomNumber === data){
+          joinedRoom = ''
           roomDataArr.splice(i,1)
         }
       })  
+    }else{
+      roomDataArr.forEach((room,i)=>{
+        let {roomNumber,joinedRoom,participants} = room
+        if(roomNumber === data){
+          joinedRoom = ''
+          room.participants -= 1
+        }
+      })
     }
   })
 
   socket.on('ready',(data)=>{
-    roomDataArr.forEach(e=>{
-      console.log(e)
+    roomDataArr.forEach(room=>{
+      let {player} = room
+      if(socket.id === player[socket.id]?.id){
+        player[socket.id].ready = player[socket.id].ready ? false : true
+        io.to(data).emit('ready',player[socket.id])  
+      }
     })
-    io.emit('ready',data)
   })
 })
   
