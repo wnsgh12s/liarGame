@@ -15,11 +15,17 @@ app.get('/',function(요청,응답){
   응답.sendFile(__dirname + ('/views/index.html'))
 })
 
-
 let roomDataArr = []
 let user = []
 let CountArr = []
 let RoomCount = 1
+function numberAssignment(rooms){
+  let returnNumber
+  for(let room in rooms){
+    returnNumber = rooms[room].playNumber + 1 
+  }
+  return returnNumber
+}
 io.on('connection',function(socket){
   //유저가 들어오면 유저목록과 생성된 방정보 쏴주기
   user[0] && io.emit('userList',user)
@@ -53,16 +59,15 @@ io.on('connection',function(socket){
       }
       return acc
     })
-    //방 정보 사용자에게 내보내기
     let roomData ={
       'roomNumber' : `room${RoomCount}`,
       'player' : {},
       'roomName' : 방제목,
       'password' : 방비밀번호,
       'participants' : 1,
-      'id' : socket.id
+      'id' : socket.id,
     }
-    //플레이어 정보
+
     roomData.player[socket.id] = {
       'nickname' : userName.nickname,
       'ready': false,
@@ -70,7 +75,7 @@ io.on('connection',function(socket){
       'id' : socket.id,
       'playNumber' : 1
     }
-
+    
     user.forEach(e=>{
       if(socket.id === e.id) {
         e.joinedRoom = `room${RoomCount}`
@@ -134,15 +139,15 @@ io.on('connection',function(socket){
               id: socket.id,
               ready: false,
               liar: false,
-              playNumber : room.participants
+              playNumber : numberAssignment(room.player)
             }
             user.joinedRoom = roomNumber
+            console.log(room.player[socket.id])
           }
         })
       }else if(data === roomNumber && password !== ''){
         io.to(socket.id).emit('roomPassword', [password,data])
       }
-      console.log(roomDataArr[0].participants)
     })
   })
 //패스워드가 일치하면 접속시키기
@@ -160,10 +165,11 @@ io.on('connection',function(socket){
     if(io.sockets.adapter.rooms.get(data) === undefined){
       io.emit('deleteRoom',data)
       roomDataArr.forEach((room,i)=>{
-        let {roomNumber,joinedRoom,participants} = room
+        let {roomNumber,joinedRoom} = room
         if(roomNumber === data){
           joinedRoom = ''
           roomDataArr.splice(i,1)
+          console.log(room.player)
         }
       })  
     }else{
