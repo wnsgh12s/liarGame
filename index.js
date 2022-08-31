@@ -19,10 +19,26 @@ let roomDataArr = []
 let user = []
 let CountArr = []
 let RoomCount = 1
-function numberAssignment(rooms){
-  let returnNumber
-  for(let room in rooms){
-    returnNumber = rooms[room].playNumber + 1 
+function numberAssignment(rooms,players){
+  let returnNumber 
+  let player = Object.values(rooms)
+  //정렬해주고
+  player.sort((a,b)=>{
+    return a.playNumber - b.playNumber 
+  })
+  for(let i = 0 ;  i < 8; i++){
+    // if(!player[i]) return console.log('이젠없단다') 
+    //번호가 없으면 그대로 푸쉬
+    if(player[i]?.playNumber === undefined){
+      returnNumber = i+1
+      console.log(returnNumber,'번호없음')
+      break
+    //번호가 있긴한데 일치하지 않으면 푸쉬
+    }else if(player[i]?.playNumber !== i + 1){
+      returnNumber = i+1
+      console.log(returnNumber,'번호불일치')
+      break
+    }
   }
   return returnNumber
 }
@@ -73,7 +89,7 @@ io.on('connection',function(socket){
       'ready': false,
       'liar' : false,
       'id' : socket.id,
-      'playNumber' : 1
+      'playNumber' : numberAssignment(roomData.player)
     }
     
     user.forEach(e=>{
@@ -98,7 +114,7 @@ io.on('connection',function(socket){
         user.splice(i,1)
         //소켓 아이디가 일치하고 참가한 방이 있는데 방의 마지막 유저일때
       }else if(e.id === socket.id && io.sockets.adapter.rooms.get(e.joinedRoom) === undefined){
-        console.log('방이있고 방이없어짐')
+        console.log('유저가 방이있고 마지막 유저임')
         io.emit('deleteRoom',e.joinedRoom)
         io.emit('disconnectUser',e.nickname)
         roomDataArr.forEach((room,i)=>{
@@ -111,11 +127,14 @@ io.on('connection',function(socket){
         })
         //소켓 아이디 일치하고 참가한 방이 있을때
       }else if(e.id === socket.id && e.joinedRoom !== ''){
-        console.log('방이있기만함')
+        io.emit('disconnectUser',e.nickname)
+        console.log('방이있고 유저가 남아있음')
         roomDataArr.forEach((room,i)=>{
-          let {roomNumber} = room
+          delete room.player[socket.id]
+          let {roomNumber} = room 
           if(roomNumber === e.joinedRoom){
             room.participants -= 1
+            roomDataArr.splice(i,1)
             user.splice(i,1)       
           }
         })
@@ -142,7 +161,6 @@ io.on('connection',function(socket){
               playNumber : numberAssignment(room.player)
             }
             user.joinedRoom = roomNumber
-            console.log(room.player[socket.id])
           }
         })
       }else if(data === roomNumber && password !== ''){
@@ -169,13 +187,14 @@ io.on('connection',function(socket){
         if(roomNumber === data){
           joinedRoom = ''
           roomDataArr.splice(i,1)
-          console.log(room.player)
         }
       })  
     }else{
       roomDataArr.forEach((room,i)=>{
         let {roomNumber,joinedRoom,participants} = room
         if(roomNumber === data){
+          delete room.player[socket.id]
+          console.log(room.player)
           joinedRoom = ''
           room.participants -= 1
         }

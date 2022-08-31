@@ -210,10 +210,10 @@ socket.on('disconnect',(e)=>{
   }
 
   socket.on('ready',(player)=>{
-    let {nickname,ready,liar,id} = player
-    console.log(player)
+    let {nickname,ready,liar,id,playNumber} = player
     // 준비를 했으면 준비한 유저의  
-    let playerBox = document.querySelector('body > div.gameModal > div.gameModalBox > div.topBox > div.leftPlayers > div.player1')
+    let playerBox = document.querySelector(`body div.gameModal div.gameModalBox div.player${playNumber}`)
+    console.log(playerBox)
     if(ready){  
       playerBox.style.background='red'
     }else{
