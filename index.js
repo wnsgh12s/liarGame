@@ -19,7 +19,7 @@ let roomDataArr = []
 let user = []
 let CountArr = []
 let RoomCount = 1
-function numberAssignment(rooms,players){
+function numberAssignment(rooms){
   let returnNumber 
   let player = Object.values(rooms)
   //정렬해주고
@@ -27,7 +27,6 @@ function numberAssignment(rooms,players){
     return a.playNumber - b.playNumber 
   })
   for(let i = 0 ;  i < 8; i++){
-    // if(!player[i]) return console.log('이젠없단다') 
     //번호가 없으면 그대로 푸쉬
     if(player[i]?.playNumber === undefined){
       returnNumber = i+1
@@ -81,7 +80,7 @@ io.on('connection',function(socket){
       'roomName' : 방제목,
       'password' : 방비밀번호,
       'participants' : 1,
-      'id' : socket.id,
+      'readyUser' : 0
     }
 
     roomData.player[socket.id] = {
@@ -106,36 +105,36 @@ io.on('connection',function(socket){
   //소켓을 나가면 유저 데이터를 없애줌
   socket.on("disconnect", (data) => {
     //유저가 나가면 나간 유저 배열 뒤져서 삭제하기
-     user.forEach((e,i)=>{
+     user.forEach((e,i,o)=>{
       //소켓아이디가 일치하고 참가한 방이 없을때
       if(e.id === socket.id && e.joinedRoom === ''){
         console.log('방이없음')
         io.emit('disconnectUser',e.nickname)
-        user.splice(i,1)
+        o.splice(i,1)
         //소켓 아이디가 일치하고 참가한 방이 있는데 방의 마지막 유저일때
       }else if(e.id === socket.id && io.sockets.adapter.rooms.get(e.joinedRoom) === undefined){
         console.log('유저가 방이있고 마지막 유저임')
+        o.splice(i,1)
         io.emit('deleteRoom',e.joinedRoom)
         io.emit('disconnectUser',e.nickname)
         roomDataArr.forEach((room,i)=>{
-          let {participants,roomNumber} = room
+          let {roomNumber} = room
           if(roomNumber === e.joinedRoom){
             roomDataArr.splice(i,1)
             room.participants -= 1
-            user.splice(i,1)
-          }
+          } 
         })
         //소켓 아이디 일치하고 참가한 방이 있을때
       }else if(e.id === socket.id && e.joinedRoom !== ''){
         io.emit('disconnectUser',e.nickname)
+        o.splice(i,1)
         console.log('방이있고 유저가 남아있음')
         roomDataArr.forEach((room,i)=>{
           delete room.player[socket.id]
           let {roomNumber} = room 
           if(roomNumber === e.joinedRoom){
             room.participants -= 1
-            roomDataArr.splice(i,1)
-            user.splice(i,1)       
+            roomDataArr.splice(i,1)       
           }
         })
       }
@@ -148,10 +147,10 @@ io.on('connection',function(socket){
       //패스워드가 없으면 접속시키기
       if(data === roomNumber && password === ''){
         socket.join(data)
-        io.to(socket.id).emit('noPassword',data)
         user.forEach(user=>{
           let {nickname,id} = user
           if(socket.id === id) {
+            io.to(socket.id).emit('noPassword',[data,room.player])
             room.participants ++
             room.player[socket.id] = {
               nickname: nickname,
@@ -193,8 +192,9 @@ io.on('connection',function(socket){
       roomDataArr.forEach((room,i)=>{
         let {roomNumber,joinedRoom,participants} = room
         if(roomNumber === data){
+          room.player[socket.id].ready = false
+          io.to(data).emit('ready',(room.player[socket.id]))
           delete room.player[socket.id]
-          console.log(room.player)
           joinedRoom = ''
           room.participants -= 1
         }
@@ -206,10 +206,29 @@ io.on('connection',function(socket){
     roomDataArr.forEach(room=>{
       let {player} = room
       if(socket.id === player[socket.id]?.id){
-        player[socket.id].ready = player[socket.id].ready ? false : true
+        //레디가 트루면 false로 false면 트루로 그리고 레디를 누른 사람 카운트
+        if(player[socket.id].ready){
+          player[socket.id].ready = false  
+          room.readyUser -= 1
+        }else{
+          player[socket.id].ready = true  
+          room.readyUser += 1
+        }
         io.to(data).emit('ready',player[socket.id])  
+      }
+      if(room.readyUser > 0){
+        //라이어 정하기
+        let players = Object.keys(room.player)
+        let random = Math.floor(Math.random() * players.length)
+        let liar = players[random]
+        room.player[liar].liar = true
+        io.to(data).emit('gameStart',room.player) 
       }
     })
   })
+  socket.on('chat',(chat)=>{
+    let {room} = chat
+    console.log(room)
+    io.to(room).emit('chat',chat)
+  })
 })
-  

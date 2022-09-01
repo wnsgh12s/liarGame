@@ -184,9 +184,13 @@ body{
   background: #4A569D no-repeat center center /cover;
 }
 .buttonBox{
+  position: absolute;
   display: flex;
   justify-content: center;
   align-items: center;
+  top: 24px;
+  left: 50%;
+  transform: translate(-50%);
 }
 .buttonBox button{
   padding: 5px;
@@ -196,12 +200,14 @@ body{
 }
 .buttonBox .subject {
   padding: 5px;
-  border: 2px solid #DC2424;
   margin-right: 30px;
 }
 .buttonBox .suggestion {
   padding: 5px;
-  border: 2px solid #DC2424;
+  margin-right: 30px;
+}
+.buttonBox .time {
+  padding: 5px;
   margin-right: 30px;
 }
 .gameModal .gameModalBox {
@@ -234,6 +240,7 @@ body{
 }
 /* 채팅보드 */
 .topBox .chatBoard {
+  position: relative;
   border: 5px solid #4A569D;
   width: 505px;
   text-align: left;
@@ -241,11 +248,23 @@ body{
 }
 .topBox .chatBoard div {
   background-color: #4A569D;
+  font-size: small;
   width: 100%;
   padding: 10px;
   box-sizing: border-box;
   white-space: pre-line;
   word-break: break-all;
+}
+/* 채팅보드 인풋 */
+.gameModal .middleBox{
+  position: relative;
+}
+.gameModal .middleBox .chatInput{
+  position: absolute;
+  bottom: 50%;
+  left: 50%;
+  transform: translate(-50%,-50%);
+  width: 50%;
 }
 .topBox .chatBoard::-webkit-scrollbar{
   display: none;
