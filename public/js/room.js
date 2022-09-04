@@ -17,10 +17,11 @@ socket.on('disconnect',(e)=>{
   })
   loginModalInput.addEventListener('keydown',(e)=>{
     if(e.key==='Enter'){
-      nickname = nickname.replace(' ','')
+      if(nickname.includes(' ')) return alert('공백 안됨')
       if(nickname === '') return alert('암것도 안적엇다잉')
       if(nickname.length > 7) return alert('8자이상 안되는데?')
       if(loggedPlayer.includes(nickname)) return alert('이미 사용되고 있는 닉네임')
+      console.log(nickname)
       socket.emit('nickname',nickname)
       loginModal.remove()  
     }
@@ -336,9 +337,35 @@ socket.on('disconnect',(e)=>{
     }else{
       console.log('유알 노라이어')
     }
+    //주제 고르기 
+    async function category(){
+      //모달생성함수
+      function createModal(element,arr) {
+        for (let i = 0; i < arr.length; i++) {
+            let btn = document.createElement('button')
+            btn.innerHTML = arr[i]
+            btn.value = arr[i]
+            element.appendChild(btn)
+            btn.addEventListener('click',(e)=>{
+              socket.emit('category',{'value' : btn.value, 'room' : joinedRoom})
+              element.remove()
+            })
+        }
+      }
+      let arr = ['음식','영화','가수','나라']
+      let modal = document.querySelector('body > div.gameModal')
+      let div = document.createElement('div')
+      div.classList.add('CategoryModal')
+      let h2 = document.createElement('h2')
+      h2.innerText='카테고리 고르기'
+      modal.appendChild(div)
+      div.appendChild(h2)
+      createModal(div,arr)
+    }
+    
     //타이머 프로미스
     function wait(){
-      let time = 10
+      let time = 3
       return new Promise((resolve)=>{
         let timer = setInterval(() => {
           let min = parseInt(time/60),
@@ -365,6 +392,7 @@ socket.on('disconnect',(e)=>{
     async function vote(){
       await loopWait()
       //시간을 다 드렸고 이제 투표 어케할까..?
+      category()
     }
     vote()
   })
@@ -375,5 +403,7 @@ socket.on('disconnect',(e)=>{
     chatBoard.appendChild(div)
     chatBoard.scrollTop = chatBoard.scrollHeight
   })
-
-  
+  let category = []
+  socket.on('category',(data)=>{
+    category.push(data)
+  })

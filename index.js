@@ -1,4 +1,3 @@
-const Room = require('./class')
 const express = require('express');
 const app = express()
 app.set('view engine', 'ejs');
@@ -168,13 +167,25 @@ io.on('connection',function(socket){
     })
   })
 //패스워드가 일치하면 접속시키기
-  socket.on('passwordMatch',(room)=>{
-    user.forEach(e=>{
-      if(socket.id === e.id) {
-        e.joinedRoom = room
+  socket.on('passwordMatch',(data)=>{
+    roomDataArr.forEach(room=>{
+      if(room.roomNumber === data){
+        user.forEach(e=>{
+          if(socket.id === e.id) {
+            room.player[socket.id] = {
+              nickname: e.nickname,
+              id: socket.id,
+              ready: false,
+              liar: false,
+              playNumber : numberAssignment(room.player)
+            }
+            e.joinedRoom = data
+            return false
+          }
+        })
       }
     })
-    socket.join(room)
+    socket.join(data)
   })
 //방 나가기 버튼을 클릭하면 유저 목록과 방데이터에서 제거
   socket.on('leaveRoom',(data)=>{
@@ -228,7 +239,11 @@ io.on('connection',function(socket){
   })
   socket.on('chat',(chat)=>{
     let {room} = chat
-    console.log(room)
     io.to(room).emit('chat',chat)
+  })
+
+  socket.on('category',(category)=>{
+    io.to(category.room).emit('category',category.value)
+    console.log(socket.adapter.rooms[socket.id])
   })
 })

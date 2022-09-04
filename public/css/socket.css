@@ -106,6 +106,13 @@ body{
   margin-bottom: 30px;
 }
 
+.loginModal .canvas_box {
+}
+.loginModal img {
+  width: 800px;
+}
+
+
 .loginModalBox label{
   font-size: 30px;
   margin-bottom: 15px
@@ -262,7 +269,9 @@ body{
 .gameModal .middleBox .chatInput{
   position: absolute;
   bottom: 50%;
+  border: 1px solid #9E8A4A;
   left: 50%;
+  padding: 2px;
   transform: translate(-50%,-50%);
   width: 50%;
 }
@@ -285,4 +294,16 @@ body{
   height: 100%;
   background-color: #eee;
 
+}
+/* 카테고리 모달 */
+div.gameModal .CategoryModal {
+  position: absolute;
+  padding: 50px;
+  background: red;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+div.gameModal .CategoryModal button:not(:last-child){
+  margin-right: 10px;
 }
