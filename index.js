@@ -73,7 +73,9 @@ io.on('connection',function(socket){
       'readyUser' : 0,
       'voteArr' : [],
       'category' : null,
-      'start' : false
+      'start' : false,
+      'answer': null,
+      'liar' : null
     }
     roomData.player[socket.id] = {
       'nickname' : user[socket.id].nickname,
@@ -119,7 +121,7 @@ io.on('connection',function(socket){
       socket.join(data)
       roomDataObj[data].participants ++
       roomDataObj[data].player[socket.id] = {
-        nickname: user[socket.id] === undefined ? user[socket.id].nickname : user[socket.id].nickname = '오류',
+        nickname: user[socket.id].nickname,
         id: socket.id,
         ready: false,
         liar: false,
@@ -127,6 +129,7 @@ io.on('connection',function(socket){
       }
       user[socket.id].joinedRoom = roomDataObj[data].roomNumber
       io.to(socket.id).emit('noPassword',{room:data,player :roomDataObj[data].player[socket.id] , players: roomDataObj[data].player})
+      io.to(data).emit('joinedRoomData',roomDataObj[data].player[socket.id])
     }else if(roomDataObj[data].roomNumber === data && roomDataObj[data].password !== '' ){
       io.to(socket.id).emit('roomPassword', [roomDataObj[data].password,data])
     }
@@ -144,6 +147,7 @@ io.on('connection',function(socket){
     }
     user[socket.id].joinedRoom = data
     socket.join(data)
+    io.to(data).emit('joinedRoomData',roomDataObj[data].player[socket.id])
   })
 //방 나가기 버튼을 클릭하면 유저 목록과 방데이터에서 제거
   socket.on('leaveRoom',(data)=>{
@@ -177,9 +181,16 @@ io.on('connection',function(socket){
       let liar = players[random]
       roomDataObj[data].player[liar].liar = true
       roomDataObj[data].start = true
+      roomDataObj[data].liar = roomDataObj[data].player[liar].nickname
       io.to(data).emit('selectCategory',roomDataObj[data].player)
+      for(let property in roomDataObj[data].player){ 
+        roomDataObj[data].player[property].ready = false
+        io.to(data).emit('ready',(roomDataObj[data].player[property]))
+      }
+      roomDataObj[data].readyUser = 0
     }
   })
+  
   socket.on('chat',(chat)=>{
     let {room} = chat
     io.to(room).emit('chat',chat)
@@ -189,10 +200,16 @@ io.on('connection',function(socket){
   })
   socket.on('category',(category)=>{
     //투표된 카테고리
+    let value = category.value
+    if(category.value === null){
+      let arr = Object.keys(word)
+      let random = Math.floor(Math.random()*arr.length)
+      value = arr[random]
+    }
+    if(category.room === undefined) return
     let playerLength = io.sockets.adapter.rooms.get(category.room).size
     let voteArr = roomDataObj[category.room].voteArr
-    let roomCategory = roomDataObj[category.room].category
-    roomDataObj[category.room].voteArr.push(category.value)
+    roomDataObj[category.room].voteArr.push(value)
     if(voteArr.length >= playerLength){
       let obj = {}
       voteArr.forEach(cate=>{
@@ -206,15 +223,17 @@ io.on('connection',function(socket){
         return a[1] > b[1] ? a : b
       })
       selected = selected[0]
-      roomCategory = selected
+      roomDataObj[category.room].category = selected
       let random = Math.floor(Math.random()*word[selected].length)
-      io.to(category.room).emit('category',{'selected':selected,'word' : word[selected][random]})
+      
+      roomDataObj[category.room].answer = word[selected][random]
+      io.to(category.room).emit('category',{'selected':selected,'word' : word[selected][random],'liar':roomDataObj[category.room].liar})
       roomDataObj[category.room].voteArr = []
       io.to(category.room).emit('gameStart',roomDataObj[category.room].player)
     }
   })  
   socket.on('vote',(data)=>{
-    console.log(user)
+    if(data.room === undefined) return
     let playerLength = io.sockets.adapter.rooms.get(data.room).size
     let voteArr = roomDataObj[data.room].voteArr
     roomDataObj[data.room].voteArr.push(data.value) 
@@ -227,25 +246,46 @@ io.on('connection',function(socket){
           obj[player] = 1
         }
       })
+      let maxObj = Object.values(obj)
+      let max = Math.max(...maxObj)
+      let filter = maxObj.filter(e=>{
+        if(e === max && e !== 'null'){
+          return e
+        }
+      })
+      //투표수가 같을때
+      if(filter.length > 1){
+        socket.emit('alert','동표입니다.')
+        return io.to(data.room).emit('gameStart',roomDataObj[data.room].player);
+      }
       let selectedPlayer = Object.entries(obj).reduce((a,b)=>{
         return a[1] > b[1] ? a : b
       })
       roomDataObj[data.room].voteArr = []
-      let playerArr = Object.values(roomDataObj[data.room].player)
-      playerArr.forEach(player=>{
-        if(player.nickname === selectedPlayer[0] && player.liar){
-          io.to(data.room).emit('result',{'votedUser':selectedPlayer[0], 'result' : true})
-          roomDataObj[data.room].start = false
-        }else if(player.nickname === selectedPlayer[0] && !player.liar){
-          io.to(data.room).emit('result',{'votedUser':selectedPlayer[0], 'result' : false})
-          roomDataObj[data.room].start = false
-        }
-      })  
-      //레디 전부 초기화
-      for(let property in roomDataObj[data.room].player){ 
-        roomDataObj[data.room].player[property].ready = false
-        io.to(data.room).emit('ready',(roomDataObj[data.room].player[property]))
+      /**
+       * @todo 이거해야돼 
+       */
+      console.log(selectedPlayer)
+      //투표자가 없을때
+      if(selectedPlayer[0] === 'null'){
+        socket.emit('alert','투표자가 없습니다 추가 설명 타임')
+        return io.to(data.room).emit('gameStart',roomDataObj[data.room].player);
       }
+      if(roomDataObj[data.room].liar === selectedPlayer[0]){
+        io.to(data.room).emit('result',{'votedUser':selectedPlayer[0], 'result' : true, 'category' : word[roomDataObj[data.room].category]})
+        roomDataObj[data.room].start = false
+      }else if(roomDataObj[data.room].liar !== selectedPlayer[0]){
+        io.to(data.room).emit('result',{'votedUser':selectedPlayer[0], 'result' : false})
+        roomDataObj[data.room].start = false
+      }  
+    }
+  })
+  
+  socket.on('liarVote',(data)=>{
+    if(data.value === roomDataObj[data.room].answer){
+      io.to(data.room).emit('answer',{'answer':true , 'value':data.value})
+    }else{
+      io.to(data.room).emit('answer',{'answer':false , 'value':data.value})
     }
   })
 })    

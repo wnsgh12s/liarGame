@@ -16,6 +16,7 @@
         <nav class="gnb">
           <ul>
             <li><a href="#" class="create_room">방생성</a></li>
+            <li><a href="#" class="soundBtn">노래끄기</a></li>
           </ul>
         </nav>
       </div>
@@ -39,7 +40,7 @@
         </article>
         <article class="room_right">
           <h2>플레이어목록</h2>
-          <div class="player_list">
+          <div class="user_list">
             <table border="1">
               <th>접속자</th>
             </table>
@@ -51,21 +52,20 @@
   <div class="loginModal">
     <div class="loginModalBox">
       <h2>liar game</h2>
-      <div class="canvas_box">
-        <img src="../img/css_sprites.png" alt="">
-      </div>
-      <label for="닉네임">당신의 닉크네임</label>
+      <label for="닉네임">당신의 닉네임</label>
       <input name="닉네임" placeholder="게스트 닉네임~" type="text">
     </div>
   </div>
   <div class="createRoomModal">
-      <label>방이름 정해라잉</label>
+      <button>X</button>
+      <label>방이름 정해라</label>
       <input class="roomName" name="roomName" placeholder="방 제목" type="text">
       <input class="roomPassword" name="방비밀번호" placeholder="방 비밀번호" type="text">
   </div>  
 </body>
 <script src="../js/socket.io.js"></script>
-<script src="../js/room.js"></script>
+<script src="../js/sound.js"></script>
+<script type="module" src="../js/room.js"></script>
 <script>
 
 </script>

@@ -3,8 +3,8 @@
 body{
   height: 100vh;
   font-family:'Galmuri11';
-  color: #9E8A4A;
-  background: linear-gradient(45deg,#DC2424,#4A569D) no-repeat;
+  color: #222;
+  background: linear-gradient(40deg,#b83030,#4A569D) no-repeat center center;
   background-size: contain;
 }
 
@@ -54,25 +54,30 @@ body{
 #main .room_list {
   width: 690px;
   height: 450px;
+  border: 5px solid;
 }
-#main .player_list{
+#main .room_list tbody tr:hover {
+  background-color: #4A569D;
+  cursor: pointer;
+
+}
+#main .user_list{
   width: 385px;
   height: 450px;
+  border: 5px solid;
+  
 }
 #main table{
   width: 100%;
-  box-shadow: 5px 5px 15px #eee
 }
 #main table th {
   height: 30px;
 }
 #main table tr {
   height: 30px;
+  border-bottom: 3px solid;
 }
-#main table tr:hover{
-  border: 1px solid;
-  cursor: pointer;
-}
+
 .loginModal {
   display: block;
   position: absolute;
@@ -82,7 +87,6 @@ body{
   width: 100%;
   height: 100%;
   background: linear-gradient(40deg,#DC2424,#4A569D) no-repeat center center;
-  
 }
 
 .loginModal .loginModalBox {
@@ -132,6 +136,7 @@ body{
 }
 .createRoomModal {
   display: none;
+  flex-direction: column;
   position: absolute;
   text-align: center;
   font-size: 20px;
@@ -139,19 +144,20 @@ body{
   top: 50%;
   transform: translate(-50%,-50%);
   padding: 50px;
-  background-color: beige;
+  border-radius: 5px;
+  border: 5px solid #eee;
 }
-.createRoomModal .createRoomModalBox{
-  background-color: #eee;
-  position: relative;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%,-50%);
-  width: 50%;
-  height: 50%;
+.createRoomModal label{
+  font-size: 30px;
+  margin-bottom: 10px;
 }
-.createRoomModal .createRoomModalBox label{
-  font-size: 50px;
+.createRoomModal button{
+  position: absolute;
+  right: 15px;
+  top: 15px;
+} 
+.createRoomModal input{
+  margin-bottom: 10px;
 }
 /* 비밀번호 창 */
 .passwordModal{
@@ -188,7 +194,7 @@ body{
   width: 100%;
   height: 100%;
   text-align: center;
-  background: #4A569D no-repeat center center /cover;
+  background: linear-gradient(40deg,#DC2424,#4A569D) no-repeat center center;
 }
 .buttonBox{
   position: absolute;
@@ -202,8 +208,10 @@ body{
 .buttonBox button{
   padding: 5px;
   border: 2px solid ;
+  border-radius: 3px;
   display: block;
   cursor: pointer;
+  margin-right: 5px;
 }
 .buttonBox .subject {
   padding: 5px;
@@ -222,9 +230,10 @@ body{
   width: 70%;
   top: 50%;
   left: 50%;
+  border-radius: 5px;
   transform: translate(-50%,-50%);
   padding: 30px;
-  background-color: #eee;
+  background-color: rgba(238, 238, 238, 0.208);
 
 }
 .gameModalBox .topBox{
@@ -233,6 +242,7 @@ body{
   height: 296px;
   margin-bottom: 45px;
 }
+
 /* 왼쪽 플레이어 */
 .topBox .leftPlayers{
   display: flex;
@@ -247,20 +257,21 @@ body{
 }
 /* 채팅보드 */
 .topBox .chatBoard {
+  border-radius: 5px ;
   position: relative;
-  border: 5px solid #4A569D;
+  border: 5px solid;
   width: 505px;
   text-align: left;
   overflow: scroll;
 }
 .topBox .chatBoard div {
-  background-color: #4A569D;
   font-size: small;
   width: 100%;
   padding: 10px;
   box-sizing: border-box;
   white-space: pre-line;
   word-break: break-all;
+  border-bottom: 1px solid;
 }
 /* 채팅보드 인풋 */
 .gameModal .middleBox{
@@ -287,19 +298,22 @@ body{
   border: 5px solid;
   width: 162px;
   height: 126px;
-  background-color: #4A569D;
+  border-radius: 5px;
+  background-color: #fefeff;
 }
 [class ^= 'player'] canvas {
   width: 100%;
   height: 100%;
-  background-color: #eee;
+  background-color: rgb(247, 247, 247);
 
 }
 /* 카테고리 모달 */
 div.gameModal .CategoryModal {
   position: absolute;
   padding: 50px;
-  background: red;
+  background: #965252;
+  border: 5px solid;
+  border-radius: 5px;
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
