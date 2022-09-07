@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <link rel="stylesheet" href="../public/css/reset.css">
+  <link rel="stylesheet" href="../public/css/socket.css">
+
+</head>
+<body>
+  <div class="wrap">
+    <header id="header">
+      <div class="header_inner">
+        <h1 class="logo"><a href="/">Liar game</a></h1>
+        <nav class="gnb">
+          <ul>
+            <li><a href="#" class="create_room">방 생성</a></li>
+            <li><a href="#" class="soundBtn"><i class="fa-solid fa-volume-low"></i></a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+    <main id="main">
+      <section class="clearfix room_inner">
+        <article class="room_left">
+          <h2>방목록</h2>
+          <div class="room_list">
+            <table>
+              <thead>
+                <tr>
+                  <th>방 상태 / 플레이어 인원</th>
+                  <th>방 이름</th>
+                  <th>방 번호</th>
+                </tr>
+              </thead>
+              <tbody class="room"></tbody>
+            </table>
+          </div>
+          <button class="create_room">방 생성</button>
+        </article>
+        <article class="room_right">
+          <h2>플레이어목록</h2>
+          <div class="user_list">
+            <table border="1">
+              <th>접속자</th>
+            </table>
+          </div>
+        </article>
+      </section>
+    </main>
+  </div>
+  <div class="loginModal">
+    <div class="loginModalBox">
+      <h2>liar game</h2>
+      <label for="닉네임">당신의 닉네임</label>
+      <input name="닉네임" placeholder="게스트 닉네임~" type="text">
+    </div>
+  </div>
+  <div class="createRoomModal">
+      <button>X</button>
+      <label>방이름 정해라</label>
+      <input class="roomName" name="roomName" placeholder="방 제목" type="text">
+      <input class="roomPassword" name="방비밀번호" placeholder="방 비밀번호" type="text">
+  </div>  
+</body>
+<script src="https://kit.fontawesome.com/8a0e2b5edd.js" crossorigin="anonymous"></script>
+<script src="./public/js/socket.io.js"></script>
+<script src="./public/js/sound.js"></script>
+<script type="module" src="./public/js/room.js"></script>
+<script>
+
+</script>
+
+</html>

@@ -1,6 +1,5 @@
 const express = require('express');
 const app = express()
-app.set('view engine', 'ejs');
 const http = require('http').createServer(app);
 const {Server} = require('socket.io');
 const io = new Server(http)
@@ -11,13 +10,14 @@ http.listen(8080,()=>{
 })
 
 app.get('/',function(요청,응답){  
-  응답.sendFile(__dirname + ('/views/index.html'))
+  응답.sendFile(__dirname + ('/index.html'))
 })
 
 let roomDataObj = {}
 let user = {}
 let CountArr = []
 let RoomCount = 1
+//플레이어 넘버 부여
 function numberAssignment(rooms){
   let returnNumber 
   let player = Object.values(rooms)
@@ -63,7 +63,6 @@ io.on('connection',function(socket){
       CountArr.push(RoomCount)
     }
     socket.join(`room${RoomCount}`)
-    //유저 닉네임과 방   생성 id가 일치하는 이름만 빼기(방 생성자를 저장하기 위한..)    
     let roomData ={
       'roomNumber' : `room${RoomCount}`,
       'player' : {},
@@ -94,29 +93,38 @@ io.on('connection',function(socket){
   //소켓을 나가면 유저 데이터를 없애줌
   socket.on("disconnect", (data) => {
     //유저가 나가면 나간 유저 배열 뒤져서 삭제하기
-    if(user[socket.id]?.joinedRoom === ''){
+    let room = user[socket.id]?.joinedRoom
+    if(room === ''){
       //방없을때
       io.emit('disconnectUser',user[socket.id].nickname)
       delete user[socket.id]
-    }else if(io.sockets.adapter.rooms.get(user[socket.id]?.joinedRoom) === undefined){
+    }else if(io.sockets.adapter.rooms.get(room) === undefined){
       //방 마지막 유저일때
-      delete roomDataObj[user[socket.id]?.joinedRoom]
-      io.emit('deleteRoom',user[socket.id]?.joinedRoom)
+      delete roomDataObj[room]
+      io.emit('deleteRoom',room)
       io.emit('disconnectUser',user[socket.id]?.nickname)
       delete user[socket.id]
-    }else if(user[socket.id]?.joinedRoom !== ''){
+    }else if(room !== ''){
       //방이 있으나 마지막 유저는 아님
       io.emit('disconnectUser',user[socket.id].nickname)
-      delete roomDataObj[user[socket.id]?.joinedRoom].player[socket.id]
-      roomDataObj[user[socket.id]?.joinedRoom].participants -=1
+      if(roomDataObj[room].player[socket.id].ready){
+        roomDataObj[room].readyUser -= 1
+      }
+      io.to(room).emit('disconnectRoom',roomDataObj[room].player[socket.id])
+      delete roomDataObj[room].player[socket.id]
+      roomDataObj[room].participants -=1
       delete user[socket.id]
     }
   });
 //방에 접속하려는 유저 패스워드가 맞는지 틀린지 확인하기
   socket.on('joinRoom',(data)=>{
-    //패스워드가없으면
-    if(roomDataObj[data].start) return io.to(socket.id).emit('alert','겜중이야')
-    if(roomDataObj[data].participants  === 8) return io.to(socket.id).emit('alert','방이 꽉찼습니다.')
+    if(roomDataObj[data].start) return io.to(socket.id).emit('alert',{
+      'alert':'게임중입니다','state': true
+    })
+    if(roomDataObj[data].participants  === 8) return io.to(socket.id).emit('alert',{
+      'alert':'방이꽉찼습니다','state': true
+    })
+    //패스워드가 없으면 
     if(roomDataObj[data].roomNumber === data && roomDataObj[data].password === ''){
       socket.join(data)
       roomDataObj[data].participants ++
@@ -167,7 +175,8 @@ io.on('connection',function(socket){
 
   socket.on('ready',(data)=>{
     let playerLength = io.sockets.adapter.rooms.get(data).size
-    if(roomDataObj[data].player[socket.id].ready){
+    let ready = roomDataObj[data].player[socket.id].ready
+    if(ready){
       roomDataObj[data].player[socket.id].ready = false
       roomDataObj[data].readyUser -= 1
     }else{
@@ -175,6 +184,7 @@ io.on('connection',function(socket){
       roomDataObj[data].readyUser += 1
     }
     io.to(data).emit('ready',roomDataObj[data].player[socket.id])
+    //참가한 유저만큼 준비가 완료 되었을때
     if(roomDataObj[data].readyUser >= playerLength){
       let players = Object.keys(roomDataObj[data].player)
       let random = Math.floor(Math.random() * players.length)
@@ -191,14 +201,15 @@ io.on('connection',function(socket){
     }
   })
   
-  socket.on('chat',(chat)=>{
-    let {room} = chat
-    io.to(room).emit('chat',chat)
+  socket.on('chat',(chatData)=>{
+    let {room} = chatData
+    io.to(room).emit('chat',chatData)
   })
-  socket.on('explanation',(chat)=>{
-    io.to(chat.joinedRoom).emit('explanation',chat)
+  socket.on('explanation',(chatData)=>{
+    io.to(chatData.joinedRoom).emit('explanation',chatData)
   })
   socket.on('category',(category)=>{
+    if(!category) return
     //투표된 카테고리
     let value = category.value
     if(category.value === null){
@@ -206,8 +217,8 @@ io.on('connection',function(socket){
       let random = Math.floor(Math.random()*arr.length)
       value = arr[random]
     }
-    if(category.room === undefined) return
-    let playerLength = io.sockets.adapter.rooms.get(category.room).size
+    console.log('이게 왜실행되는데',category)
+    let playerLength = io.sockets.adapter.rooms.get(category?.room).size
     let voteArr = roomDataObj[category.room].voteArr
     roomDataObj[category.room].voteArr.push(value)
     if(voteArr.length >= playerLength){
@@ -255,7 +266,7 @@ io.on('connection',function(socket){
       })
       //투표수가 같을때
       if(filter.length > 1){
-        socket.emit('alert','동표입니다.')
+        socket.emit('alert',{'alert' :'동표입니다', 'state': false})
         return io.to(data.room).emit('gameStart',roomDataObj[data.room].player);
       }
       let selectedPlayer = Object.entries(obj).reduce((a,b)=>{
@@ -265,10 +276,9 @@ io.on('connection',function(socket){
       /**
        * @todo 이거해야돼 
        */
-      console.log(selectedPlayer)
       //투표자가 없을때
       if(selectedPlayer[0] === 'null'){
-        socket.emit('alert','투표자가 없습니다 추가 설명 타임')
+        socket.emit('alert',{'alert' :'투표자가 없습니다 추가 설명 타임', 'state': false})
         return io.to(data.room).emit('gameStart',roomDataObj[data.room].player);
       }
       if(roomDataObj[data.room].liar === selectedPlayer[0]){
@@ -283,9 +293,9 @@ io.on('connection',function(socket){
   
   socket.on('liarVote',(data)=>{
     if(data.value === roomDataObj[data.room].answer){
-      io.to(data.room).emit('answer',{'answer':true , 'value':data.value})
+      io.to(data.room).emit('answer',{'answer':true ,'value' : data.value})
     }else{
-      io.to(data.room).emit('answer',{'answer':false , 'value':data.value})
+      io.to(data.room).emit('answer',{'answer':false ,'value' : data.value})
     }
   })
 })    

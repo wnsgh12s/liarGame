@@ -2,3 +2,20 @@
   font-family: 'Galmuri11';
   src: url(../font/Galmuri11-Bold.woff2);
 }
+
+@font-face {
+  font-family: 'blackHanSans';
+  src: url(../font/BlackHanSans-Regular.ttf);
+}
+@font-face {
+  font-family: 'GmarketSansMedium';
+  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/GmarketSansMedium.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'HSYujiRegular';
+  src: url(../font/HS유지체.ttf) format('woff');
+  font-weight: normal;
+  font-style: normal;
+}

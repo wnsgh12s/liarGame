@@ -1,17 +1,21 @@
 window.onload = ()=>{
-  const socket = io()
-  let soundBtn = document.querySelector('#header > div > nav > ul > li:nth-child(2) > a')
-socket.on('disconnect',()=>{
-  location.reload()
-})
-  // 유저가 접속하면 모달창 띄워줄거임
+  const socket = io() 
+  //유저의 연결이 끊기면 새로고침
+  socket.on('disconnect',()=>{
+    location.reload()
+  })
+  //방생성 버튼
+  let gnbSoundBtn = document.querySelector('#header > div > nav > ul > li:nth-child(2) > a')
+  // 클라이언트가 접속한 방
   let joinedRoom = ''
+  // 로그인한 플레이어의 정보
   const loggedPlayer = {}
+  // 로그인 모달창
   const loginModal = document.querySelector('.loginModal')
   const loginModalInput = document.querySelector('.loginModal input')
   loginModalInput.focus()
   let nickname = ''
-  //데이터 방 목록 받아오고 테이블 쏴주기
+  //방 목록 데이터 받아오고 전달
   loginModalInput.addEventListener('input',(e)=>{
     nickname = e.target.value
   })
@@ -21,13 +25,16 @@ socket.on('disconnect',()=>{
       if(nickname === '') return alert('암것도 안적엇다잉')
       if(nickname.length > 7) return alert('8자이상 안되는데?')
       if(loggedPlayer[nickname]) return alert('이미 사용되고 있는 닉네임')
-      playSound(soundBtn)
+      playSound([soundBtn,gnbSoundBtn])
       socket.emit('nickname',nickname)
       loginModal.remove()  
     }
   })
+  // 유저 테이블
   const userTable = document.querySelector('.user_list table')
-
+  // 유저 목록
+  const userlist = document.querySelector('.user_list')
+  //유저 데이터를 받아오는 소캣
   socket.on('userList',(data)=>{
       for(let player in data){
         let {nickname,id} = data[player]
@@ -42,7 +49,7 @@ socket.on('disconnect',()=>{
         }   
         }
   })
-
+  // 방생성 함수
   function addRoom(player,roomName,roomNumber,password,participants){
     let tr = document.createElement('tr')
     let td_left = document.createElement('td')
@@ -58,8 +65,9 @@ socket.on('disconnect',()=>{
     td_right.innerHTML='<tr>'+'<td>'+ state + ' ' + participants + '</td>'+ '</tr>'
     RoomTable.append(tr)
   }
-
+  //룸 테이블
   const RoomTable = document.querySelector('.room_list table tbody')
+  //방 목록을 받아오고 dom에 밀어넣는 소켓
   socket.on('roomsData',(data)=>{
     //방이없으면 리턴
     if(Object.keys(data).length === 0 ) return
@@ -69,7 +77,7 @@ socket.on('disconnect',()=>{
     }
     
   })
-  //방생성 버튼을 누르면 서버에게  방 생성 버튼을 눌럿다고 보내줌
+  //방생성 dom 요소들
   const CreateRoomBtn = document.querySelector('.create_room')
   let createRoom = document.querySelector('.createRoomModal')  
   let roomNameInput = document.querySelector('.roomName')
@@ -81,13 +89,14 @@ socket.on('disconnect',()=>{
   }
   //방제목을 클릭하면 방 입력창 띄워주기
   CreateRoomBtn.addEventListener('click',(e)=>{
-    //크롬에서만 이상한 포커스오류
     playBtnSound()
     setTimeout( function(){ roomNameInput.focus(); }, 50 );
     e.preventDefault()
     createRoom.style.display = 'flex'
   })
+
   removeRoomBtn.addEventListener('click',(e)=>{
+    playBtnSound()
     createRoom.style.display = 'none'
   })
   //input값에 값을 입력하면 방제목에 저장
@@ -106,9 +115,10 @@ socket.on('disconnect',()=>{
     }
     방정보.방비밀번호 = e.target.value
   })
-  //enter 키를 입력하면 방생성 하고 방이름 데이터와 유저 방만든 유저 넘겨주고 모달창 제거
+  //enter 키를 입력하면 방생성 
   createRoom.addEventListener('keydown',e=>{
     if(e.key === 'Enter'){
+      playEnterSound()
       socket.emit('createRoom',방정보)
       createRoom.style.display = 'none'
       addGameRoom()   
@@ -120,7 +130,7 @@ socket.on('disconnect',()=>{
     joinedRoom = roomNumber
   })
 
-//그리고 방 생성 버튼을 누른 인간의 socketid와 방번호를 받아와서 테이블 삽입해줄거임
+  //그리고 방 생성 버튼을 누른 클라이언트의 방정보와 아이디 밀어넣고 생성
   socket.on('createRoom',(room)=>{
     let {player,roomName,roomNumber,password,participants} = room
     addRoom(player,roomName,roomNumber,password,participants)
@@ -131,6 +141,7 @@ socket.on('disconnect',()=>{
   //방 참가
   RoomTable.addEventListener('click',e=>{
     if(e.target.tagName === 'TD'){
+      playBtnSound()
       let tr = e.target.parentElement
       let roomNumber = tr.className
       socket.emit('joinRoom',roomNumber)
@@ -179,6 +190,7 @@ socket.on('disconnect',()=>{
     player5.classList.add('player5')
     player6.classList.add('player6')
     buttonBox.classList.add('buttonBox')
+    buttonBox.append(soundBtn)
     gameModal.appendChild(buttonBox)
     //레디버튼
     readyBtn.classList.add('readyBtn')
@@ -222,18 +234,19 @@ socket.on('disconnect',()=>{
     let leaveRoomBtn = document.querySelector('body div.gameModal div.buttonBox .exitBtn')
     let _readyBtn = document.querySelector('body div.gameModal div.buttonBox .readyBtn')
     let _chatInput = document.querySelector('body > div.gameModal > div.gameModalBox > div.middleBox > input')
+    //나가기 버튼 이벤트리스너 추가
     leaveRoomBtn?.addEventListener('click',(e)=>{
     playBtnSound()
     socket.emit('leaveRoom',joinedRoom)
     joinedRoom = ''
     gameModal.remove()
-
   })
+    //레디 버튼 이벤트리스너 추가
   _readyBtn?.addEventListener('click',(e)=>{
     playBtnSound()
     socket.emit('ready',joinedRoom)
   })
-  //채팅보드 인풋
+  //채팅 입력창
   _chatInput.focus()
   let chat 
   _chatInput?.addEventListener('input',(e)=>{
@@ -259,9 +272,8 @@ socket.on('disconnect',()=>{
     if(ready){  
       playerBox.style.background='red'
     }else{
-      playerBox.style.background='#4A569D'
+      playerBox.style.background='#fefeff3c'
     }
-
   })
   //패스워드 없으면 그냥참가
   socket.on('noPassword',(data)=>{
@@ -274,7 +286,7 @@ socket.on('disconnect',()=>{
       if(player.ready){  
         playerBox.style.background='red'
       }else{
-        playerBox.style.background='#4A569D'
+        playerBox.style.background='#fefeff3c'
       }
     })
   })
@@ -303,6 +315,7 @@ socket.on('disconnect',()=>{
     })
     input.addEventListener('keydown',(e)=>{
       if(e.key === 'Enter' && value === data[0]){
+        playEnterSound()
         socket.emit('passwordMatch',data[1])
         joinedRoom = data[1]
         modal.remove()
@@ -346,6 +359,7 @@ socket.on('disconnect',()=>{
       btn.value = arr[i]
       element.appendChild(btn)
       btn.addEventListener('click',(e)=>{
+        playBtnSound()
         clearInterval(timer)
         socket.emit(emit,{'value' : btn.value, 'room' : joinedRoom})
         element.remove()
@@ -353,6 +367,7 @@ socket.on('disconnect',()=>{
     }
   }
   socket.on('chat',(data)=>{
+    playEnterSound()
     let chatBoard = document.querySelector('body > div.gameModal > div.gameModalBox > div.topBox > div.chatBoard')
     let div = document.createElement('div')
     div.classList.add(data.nick)
@@ -393,7 +408,7 @@ socket.on('disconnect',()=>{
     //타이머 프로미스
     let 시간 = document.querySelector('div.time')
     let players = Object.values(data)
-    function wait(t,h,n,p){
+    function wait(t,h,n,playNumber){
       let time = t
       let chatInput = document.querySelector('div.middleBox > input')
       return new Promise((resolve)=>{
@@ -415,7 +430,7 @@ socket.on('disconnect',()=>{
         chatInput.addEventListener('keydown',function sendData(e){
           if(e.key === 'Enter' && n === nickname){
             chatInput.removeEventListener('keydown',sendData)
-            socket.emit('explanation',{value,joinedRoom,n,p})
+            socket.emit('explanation',{value,joinedRoom,nickname,playNumber})
           }
         })
       })
@@ -428,13 +443,12 @@ socket.on('disconnect',()=>{
         playerBox.style.background = 'blue'
         await wait(30,players[i].nickname.concat(' 차례'),players[i].nickname,players[i].playNumber)
         waiting = false
-        playerBox.style.background = '#4A569D'
+        playerBox.style.background = '#fefeff3c'
       } 
     } 
-    //유저수 만큼 루프 돌았으면 투표 해야겠죵?
+    //유저수 만큼 설명할 시간 줬으면 투표
     async function vote(){
       await loopWait()
-      //시간을 다 드렸고 이제 투표 어케할까..?
       let modal = document.querySelector('div.gameModal')
       let div = document.createElement('div')
       div.classList.add('CategoryModal')
@@ -449,17 +463,19 @@ socket.on('disconnect',()=>{
     }
     vote()
   })
-
+  // 설명한 유저의 채팅
   socket.on('explanation',(data)=>{
-    let playerBox = document.querySelector(`div.player${data.p}`)
-    playerBox.innerHTML = `<p>${data.n} : ${data.value}</p>`
+    let playerBox = document.querySelector(`div.player${data.playNumber}`)
+    playerBox.innerHTML = `<p>${data.nickname} : ${data.value}</p>`
     waiting = true
   })
+  //투표의 결과
   socket.on('result',(data)=>{
     alert(`${data.votedUser}는(은) ${data.result ? '라이어가 맞습니다': '라이어가 아닙니다'}`)
     let chatBoard = document.querySelector('div.chatBoard')
     let div = document.createElement('div')
-    div.innerHTML = `<p>${data.votedUser}는(은) ${data.result ? '라이어에게 정답을 맞출 기회를 드립니다': '라이어가 아닙니다 라이어의 승리!!!'}</p>`
+    div.innerHTML = `<p>${data.result ? '라이어에게 정답을 맞출 기회를 드립니다': `${data.votedUser}는(은) 라이어가 아닙니다 라이어의 승리!!!`}</p>`
+    chatBoard.scrollTop = chatBoard.scrollHeight
     div.style.color='#DC2424'
     chatBoard.appendChild(div)
     if(data.result && data.votedUser === nickname){
@@ -474,16 +490,30 @@ socket.on('disconnect',()=>{
       createModal(div2,arr,'liarVote')
     }
   })
+  //공지
   socket.on('alert',(data)=>{
-    alert(data)
+    if(!data.state){
+      document.querySelector('body > div.gameModal > div.CategoryModal').remove()
+      alert(data.alert)
+    }else{
+      alert(data.alert)
+    }
   })
   socket.on('answer',(data)=>{
       let chatBoard = document.querySelector('div.chatBoard')
       let div = document.createElement('div')
+      data.answer ? playLose() : playWin()
       div.innerHTML = `<p>${data.answer ? `라이어가 선택한 답은 ${data.value}!! 정답을 맞췄습니다 라이어 승리!`: `라이어가 선택한 답은 ${data.value}이며 정답을 틀렸습니다. 라이어패배`}</p>`
       div.style.color='#DC2424'
       chatBoard.appendChild(div)
+      chatBoard.scrollTop = chatBoard.scrollHeight
       let readyBtn = document.querySelector('button.readyBtn')
       readyBtn.style.display = 'block'
+  })
+
+  socket.on('disconnectRoom',(data)=>{
+    let playerBox = document.querySelector(`div.player${data.playNumber}`)
+    playerBox.innerHTML=``
+    playerBox.style.background ='#fefeff3c'
   })
 }

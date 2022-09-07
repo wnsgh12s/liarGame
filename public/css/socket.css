@@ -1,11 +1,12 @@
 @import url(font.css);
 
+
 body{
   height: 100vh;
-  font-family:'Galmuri11';
+  font-family:'HSYujiRegular';
   color: #222;
-  background: linear-gradient(40deg,#b83030,#4A569D) no-repeat center center;
-  background-size: contain;
+  background:url(../img/paperbackground.png) no-repeat center center;
+  background-size: cover;
 }
 
 [class $= 'inner']{
@@ -33,7 +34,8 @@ body{
 #header .gnb a:hover {
   color: #DC2424
 }
-#main {}
+#main {
+}
 #main h2 {
   font-size: 20px;
   margin-bottom: 23px;  
@@ -45,16 +47,31 @@ body{
 #main .room_left {
   float: left;
   width: 690px;
-  height: 450px;
-  
+  height: 450px; 
+}
+#main .room_left button {
+  border: none;
+  font-size: 15px;
+  background: none;
+  padding: 5px;
+  border-radius: 5px;
+  border: 2px solid;
 }
 #main .room_right {
   float: right;
 }
+#main .room_list::-webkit-scrollbar {
+  display: none;
+}
 #main .room_list {
   width: 690px;
-  height: 450px;
+  height: 200px;
   border: 5px solid;
+  border-radius: 5px;
+  background-color: #be91913b;
+  overflow-y: scroll;
+  box-shadow: 0px 5px 0px 0px #222 ;
+  margin-bottom: 20px;
 }
 #main .room_list tbody tr:hover {
   background-color: #4A569D;
@@ -63,8 +80,9 @@ body{
 }
 #main .user_list{
   width: 385px;
-  height: 450px;
   border: 5px solid;
+  border-radius: 5px;
+  background-color: #be91913b;
   
 }
 #main table{
@@ -86,11 +104,10 @@ body{
   transform: translate(-50%,-50%);
   width: 100%;
   height: 100%;
-  background: linear-gradient(40deg,#DC2424,#4A569D) no-repeat center center;
+  background: url(../img/자산\ 1.png) no-repeat center center/50%,url(../img/background.png) no-repeat center center /cover;
 }
 
 .loginModal .loginModalBox {
-  text-shadow: 1px 4px 5px #4A569D;
   position: relative;
   left: 50%;
   top: 50%;
@@ -99,19 +116,14 @@ body{
   padding: 30px;
   flex-direction: column;
   transform: translate(-50%,-50%);
-  border: 5px solid;
-  border-radius: 5px;
-  background-color: #dc242424;
+    border-radius: 5px;
   text-align: center;
-  box-shadow: inset 0px 1px 3px #eee;;
 }
 .loginModal h2 {
   font-size: 50px;
   margin-bottom: 30px;
 }
 
-.loginModal .canvas_box {
-}
 .loginModal img {
   width: 800px;
 }
@@ -125,6 +137,8 @@ body{
   font-family: 'Galmuri11';
   padding: 10px;
   text-align: center;
+  width: 50%;
+  margin: auto;
 }
 
 #canvas {
@@ -144,8 +158,8 @@ body{
   top: 50%;
   transform: translate(-50%,-50%);
   padding: 50px;
-  border-radius: 5px;
-  border: 5px solid #eee;
+  background: url(../img/자산\ 2.png) no-repeat center center/contain;
+  
 }
 .createRoomModal label{
   font-size: 30px;
@@ -155,6 +169,7 @@ body{
   position: absolute;
   right: 15px;
   top: 15px;
+  border-radius: 5px;
 } 
 .createRoomModal input{
   margin-bottom: 10px;
@@ -259,7 +274,7 @@ body{
 .topBox .chatBoard {
   border-radius: 5px ;
   position: relative;
-  border: 5px solid;
+  border: 5px solid #333;
   width: 505px;
   text-align: left;
   overflow: scroll;
@@ -271,7 +286,7 @@ body{
   box-sizing: border-box;
   white-space: pre-line;
   word-break: break-all;
-  border-bottom: 1px solid;
+  border-bottom: 1px solid #333;
 }
 /* 채팅보드 인풋 */
 .gameModal .middleBox{
@@ -299,13 +314,7 @@ body{
   width: 162px;
   height: 126px;
   border-radius: 5px;
-  background-color: #fefeff;
-}
-[class ^= 'player'] canvas {
-  width: 100%;
-  height: 100%;
-  background-color: rgb(247, 247, 247);
-
+  background-color: #fefeff3c;
 }
 /* 카테고리 모달 */
 div.gameModal .CategoryModal {
@@ -320,4 +329,7 @@ div.gameModal .CategoryModal {
 }
 div.gameModal .CategoryModal button:not(:last-child){
   margin-right: 10px;
+}
+@media (max-width:600px){ /*가로 너비가 600px 이하일 때 아래 스타일 적용*/
+  
 }
