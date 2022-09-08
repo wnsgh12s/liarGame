@@ -7,7 +7,8 @@ const word = require('./word')
 app.use(express.static(__dirname + "/public"));
 let port = process.env.PORT || 8080
 
-http.listen(port,()=>{
+http.listen(port,(요청,응답)=>{
+  console.log(요청)
 })
 
 app.get('/',function(요청,응답){  
