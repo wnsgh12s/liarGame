@@ -107,6 +107,7 @@ window.onload = ()=>{
     setTimeout( function(){ roomNameInput.focus(); }, 50 );
     e.preventDefault()
     createRoom.style.visibility = 'visible'
+    createRoom.style.display = 'flex'
   })  
 
   removeRoomBtn.addEventListener('click',(e)=>{
