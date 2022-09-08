@@ -352,6 +352,34 @@ div.gameModal .CategoryModal {
 div.gameModal .CategoryModal button:not(:last-child){
   margin-right: 10px;
 }
+.loadingModal{
+  position: absolute;
+  z-index: 1;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgb(255, 255, 255)
+}
+.loadingModal .box {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%,-50%);
+}
+#loading {
+  display: block;
+  width: 100px;
+  height: 100px;
+  border: 3px solid rgba(125, 220, 99, 0.3);
+  border-radius: 50%;
+  border-top-color: #fff;
+  animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
 @media screen and (max-width: 1200px) {
   body{
     height: inherit;

@@ -1,4 +1,7 @@
 window.onload = ()=>{
+  document.querySelector('.loadingModal').remove()
+  let body = document.querySelector('body')
+  body.style.display='block'
   const socket = io() 
   //유저의 연결이 끊기면 새로고침
   socket.on('disconnect',()=>{
