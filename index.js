@@ -8,7 +8,7 @@ app.use(express.static(__dirname + "/public"));
 let port = process.env.PORT || 8080
 
 http.listen(port,(요청,응답)=>{
-  console.log(요청)
+  console.log('시작되엇네')
 })
 
 app.get('/',function(요청,응답){  
@@ -169,6 +169,7 @@ io.on('connection',function(socket){
     }else{
       roomDataObj[data].player[socket.id].ready = false
       io.to(data).emit('ready',(roomDataObj[data].player[socket.id]))
+      io.to(data).emit('disconnectRoom',roomDataObj[data].player[socket.id])
       delete roomDataObj[data].player[socket.id]
       roomDataObj[data].participants -= 1
       user[socket.id].joinedRoom = ''
@@ -268,6 +269,7 @@ io.on('connection',function(socket){
       })
       //투표수가 같을때
       if(filter.length > 1){
+        console.log(filter)
         socket.emit('alert',{'alert' :'동표입니다', 'state': false})
         return io.to(data.room).emit('gameStart',roomDataObj[data.room].player);
       }
@@ -280,6 +282,7 @@ io.on('connection',function(socket){
        */
       //투표자가 없을때
       if(selectedPlayer[0] === 'null'){
+        console.log('으이?')
         socket.emit('alert',{'alert' :'투표자가 없습니다 추가 설명 타임', 'state': false})
         return io.to(data.room).emit('gameStart',roomDataObj[data.room].player);
       }

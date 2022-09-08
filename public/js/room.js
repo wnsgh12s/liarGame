@@ -154,6 +154,7 @@ window.onload = ()=>{
 
   //그리고 방 생성 버튼을 누른 클라이언트의 방정보와 아이디 밀어넣고 생성
   socket.on('createRoom',(room)=>{
+    if(room === undefined) return
     let {player,roomName,roomNumber,password,participants} = room
     addRoom(player,roomName,roomNumber,password,participants)
     let playerBox = document.querySelector(`div.player${player[socket.id].playNumber}`)
@@ -189,7 +190,6 @@ window.onload = ()=>{
     let rightPlayers = document.createElement('div')
     let player8 = document.createElement('div')
     let player7 = document.createElement('div')
-    let bottomBox = document.createElement('div')
     let player3 = document.createElement('div')
     let player4 = document.createElement('div')
     let player5 = document.createElement('div')
@@ -206,14 +206,13 @@ window.onload = ()=>{
     rightPlayers.classList.add('rightPlayers')
     player8.classList.add('player8')
     player7.classList.add('player7')
-    bottomBox.classList.add('bottomBox')
     player3.classList.add('player3')
     player4.classList.add('player4')
     player5.classList.add('player5')
     player6.classList.add('player6')
     buttonBox.classList.add('buttonBox')
     buttonBox.append(soundBtn)
-    gameModal.appendChild(buttonBox)
+    gameModalBox.appendChild(buttonBox)
     //레디버튼
     readyBtn.classList.add('readyBtn')
     readyBtn.innerText = '준비'
@@ -239,19 +238,18 @@ window.onload = ()=>{
     gameModal.appendChild(gameModalBox)
     gameModalBox.appendChild(topBox)
     gameModalBox.appendChild(middleBox)
-    gameModalBox.appendChild(bottomBox)
     topBox.appendChild(leftPlayers)
     topBox.appendChild(chatBoard)
     topBox.appendChild(rightPlayers)
     middleBox.appendChild(chatInput)
     leftPlayers.appendChild(player1)
     leftPlayers.appendChild(player2)
-    rightPlayers.appendChild(player8)
+    leftPlayers.appendChild(player3)
+    leftPlayers.appendChild(player4)
+    rightPlayers.appendChild(player5)
+    rightPlayers.appendChild(player6)
     rightPlayers.appendChild(player7)
-    bottomBox.appendChild(player3)
-    bottomBox.appendChild(player4)
-    bottomBox.appendChild(player5)
-    bottomBox.appendChild(player6)
+    rightPlayers.appendChild(player8)
     document.querySelector('body').append(gameModal)
     let leaveRoomBtn = document.querySelector('body div.gameModal div.buttonBox .exitBtn')
     let _readyBtn = document.querySelector('body div.gameModal div.buttonBox .readyBtn')
@@ -531,7 +529,9 @@ window.onload = ()=>{
   //공지
   socket.on('alert',(data)=>{
     if(!data.state){
-      document.querySelector('body > div.gameModal > div.CategoryModal').remove()
+      console.log(data.alert)
+      let modal = document.querySelector('body > div.gameModal > div.CategoryModal')
+      modal?.remove()
       alert(data.alert)
     }else{
       alert(data.alert)

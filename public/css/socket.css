@@ -12,6 +12,7 @@ body{
 button {
   padding: 5px;
   background: none;
+  font-size: 1em;
   border-radius: 5px;
   font-family: 'GmarketSansMedium';
   box-shadow: 1px 2px ;
@@ -60,12 +61,10 @@ input {
 }
 #main .room_inner{
   text-align: center;
-  height: 497px;
 }
 #main .room_left {
   float: left;
-  width: 690px;
-  height: 450px; 
+  width: 690px; 
 }
 
 #main .room_right {
@@ -221,15 +220,12 @@ input {
   background: #d0d1cc;
 }
 .buttonBox{
-  position: absolute;
-  font-family: 'GmarketSansMedium';
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  top: 24px;
-  left: 50%;
-  transform: translate(-50%);
-  font-size: 1em;
+    font-family: 'GmarketSansMedium';
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1em;
+    margin-bottom: 20px;
 }
 .buttonBox button{
   padding: 5px;
@@ -256,24 +252,27 @@ input {
 }
 .gameModal .gameModalBox {
   position: relative;
-  width: 70%;
+  width: 100%;
+  height: 100%;
   top: 50%;
   left: 50%;
   border-radius: 5px;
   transform: translate(-50%,-50%);
   padding: 30px;
+  box-sizing: border-box;
   background-color: rgba(238, 238, 238, 0.208);
-
 }
 .gameModalBox .topBox{
   display: flex;
+  height: 100%;
   justify-content: space-between;
-  height: 296px;
-  margin-bottom: 45px;
+  height: 80%;
+  margin-bottom: 20px;
 }
 
 /* 왼쪽 플레이어 */
 .topBox .leftPlayers{
+  width: 20%;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -281,6 +280,7 @@ input {
 /* 오른쪽 플레이어 */
 .topBox .rightPlayers{
   display: flex;
+  width: 20%;
   flex-direction: column;
   justify-content: space-between;
 }
@@ -289,10 +289,10 @@ input {
   position: relative;
   color: #eee;
   border: 5px solid #333;
-  width: 505px;
+  width: 50%;
   text-align: left;
   overflow: scroll;
-  border-radius: 5px ;
+  border-radius: 5px;
   background: #254f45;
 }
 .topBox .chatBoard div {
@@ -306,16 +306,10 @@ input {
 }
 /* 채팅보드 인풋 */
 .gameModal .middleBox{
-  position: relative;
+  /* position: relative; */
+  height: 10%;
 }
 .gameModal .middleBox .chatInput{
-  position: absolute;
-  bottom: 50%;
-  border: 1px solid #9E8A4A;
-  left: 50%;
-  padding: 2px;
-  transform: translate(-50%,-50%);
-  width: 50%;
   
 }
 .topBox .chatBoard::-webkit-scrollbar{
@@ -328,8 +322,9 @@ input {
 /* 플레이어박스 스타일 */
 [class ^= 'player']{
   border: 5px solid;
-  width: 162px;
-  height: 126px;
+  box-sizing: border-box;
+  width: 100%;
+  height: 20%;
   border-radius: 5px;
   background-color: #fefeff3c;
 }
@@ -383,7 +378,7 @@ div.gameModal .CategoryModal button:not(:last-child){
 
 @media screen and (max-width: 1200px) {
   body{
-    height: inherit;
+    height: 100vh;
     background-size: cover;
   }
   [class $= 'inner'] {
@@ -410,9 +405,18 @@ div.gameModal .CategoryModal button:not(:last-child){
 }
 @media screen and (max-width: 800px){
   body{
-    font-size: 0.5em;
+    font-size: 0.6em;
   }
   .loginModal {
     background: url(../img/자산\ 1.png) no-repeat center center/100%,url(../img/background.png) no-repeat center center /cover;
+  }
+  .buttonBox {
+    font-size: 1.5em;
+  }
 }
+@media screen and (max-width: 500px) {
+  .buttonBox {
+    justify-content: space-between;
+    font-size: 1.2em;
+  }
 }
