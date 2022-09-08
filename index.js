@@ -5,8 +5,9 @@ const {Server} = require('socket.io');
 const io = new Server(http)
 const word = require('./word')
 app.use(express.static(__dirname + "/public"));
+let port = process.env.PORT || 8080
 
-http.listen(8080,()=>{
+http.listen(port,()=>{
 })
 
 app.get('/',function(요청,응답){  
