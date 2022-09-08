@@ -4,9 +4,28 @@
 body{
   height: 100vh;
   font-family:'HSYujiRegular';
+  font-size: 1em;
   color: #222;
   background:url(../img/paperbackground.png) no-repeat center center;
   background-size: cover;
+}
+button {
+  padding: 5px;
+  background: none;
+  border-radius: 5px;
+  font-family: 'GmarketSansMedium';
+  box-shadow: 1px 2px ;
+  transition: all 0.2s;
+}
+button:hover {
+  background-color: #333;
+  color: #eee;
+  box-shadow: none;
+  cursor: pointer;
+}
+input {
+  text-align: center;
+  font-family: 'GmarketSansMedium';
 }
 
 [class $= 'inner']{
@@ -25,7 +44,6 @@ body{
   
 }
 #header .gnb ul {
-  font-size: 1.2em;
   display: flex;
 }
 #header .gnb ul li:not(:first-child) {
@@ -37,7 +55,7 @@ body{
 #main {
 }
 #main h2 {
-  font-size: 20px;
+  font-size: 2em;
   margin-bottom: 23px;  
 }
 #main .room_inner{
@@ -49,14 +67,7 @@ body{
   width: 690px;
   height: 450px; 
 }
-#main .room_left button {
-  border: none;
-  font-size: 15px;
-  background: none;
-  padding: 5px;
-  border-radius: 5px;
-  border: 2px solid;
-}
+
 #main .room_right {
   float: right;
 }
@@ -82,6 +93,7 @@ body{
   width: 385px;
   border: 5px solid;
   border-radius: 5px;
+  margin: auto;
   background-color: #be91913b;
   
 }
@@ -116,31 +128,27 @@ body{
   padding: 30px;
   flex-direction: column;
   transform: translate(-50%,-50%);
-    border-radius: 5px;
+  border-radius: 5px;
   text-align: center;
 }
 .loginModal h2 {
-  font-size: 50px;
+  font-size: 2em;
   margin-bottom: 30px;
 }
-
-.loginModal img {
-  width: 800px;
-}
-
-
 .loginModalBox label{
-  font-size: 30px;
+  font-size: 2.5em;
   margin-bottom: 15px
 }
 .loginModalBox input{
-  font-family: 'Galmuri11';
   padding: 10px;
   text-align: center;
   width: 50%;
-  margin: auto;
+  border-radius: 5px;
+  margin: auto auto 15px auto;
 }
-
+.loginModal .joinBtn {
+  text-align: center; 
+}
 #canvas {
   position:absolute;
   display: block;
@@ -153,24 +161,18 @@ body{
   flex-direction: column;
   position: absolute;
   text-align: center;
-  font-size: 20px;
+  font-size: 1.5em;
   left: 50%;
   top: 50%;
   transform: translate(-50%,-50%);
   padding: 50px;
-  background: url(../img/자산\ 2.png) no-repeat center center/contain;
-  
+  background: url(../img/자산\ 2.png) no-repeat center center/100% 100%;
+ 
 }
 .createRoomModal label{
-  font-size: 30px;
+  font-size: 2.5em;
   margin-bottom: 10px;
 }
-.createRoomModal button{
-  position: absolute;
-  right: 15px;
-  top: 15px;
-  border-radius: 5px;
-} 
 .createRoomModal input{
   margin-bottom: 10px;
 }
@@ -182,43 +184,51 @@ body{
   left: 50%;
   transform: translate(-50%,-50%);
   width: 20%;
+  background-color: red;
+}
+.passwordModal label {
+  margin-bottom: 5px;
+}
+.passwordModal input{
+  margin-bottom: 10px;
 }
 
 .passwordModal div{
-  position: relative;
+  background:url(../img/자산\ 2.png) no-repeat center center /100% 100%;
+  position: absolute;
   display: flex;
   flex-direction: column;
   top: 50%;
   left: 50%;
   width: 50%; 
   transform: translate(-50%,-50%);
-  background-color: #4A569D;
   padding: 30px;
 }
 .passwordModal button {
-  padding: 5px;
-  text-align: center;
-  margin-bottom: 20px;
-  border: 1px solid #DC2424;
+  width: 50%;
+  margin: auto;
 }
 /* 게임시작시 모달 */
 .gameModal{
+  font-family: 'GmarketSansMedium';
   display: block;
   position: absolute;
-  top: 0;
+  top: 0; 
   width: 100%;
   height: 100%;
   text-align: center;
-  background: linear-gradient(40deg,#DC2424,#4A569D) no-repeat center center;
+  background: #d0d1cc;
 }
 .buttonBox{
   position: absolute;
+  font-family: 'GmarketSansMedium';
   display: flex;
   justify-content: center;
   align-items: center;
   top: 24px;
   left: 50%;
   transform: translate(-50%);
+  font-size: 1em;
 }
 .buttonBox button{
   padding: 5px;
@@ -230,15 +240,18 @@ body{
 }
 .buttonBox .subject {
   padding: 5px;
-  margin-right: 30px;
+  margin-right: 5px;
 }
 .buttonBox .suggestion {
   padding: 5px;
-  margin-right: 30px;
+  margin-right: 20px;
 }
 .buttonBox .time {
   padding: 5px;
-  margin-right: 30px;
+  margin-right: 20px;
+  border: 2px solid;
+  border-radius: 5px;
+
 }
 .gameModal .gameModalBox {
   position: relative;
@@ -272,15 +285,17 @@ body{
 }
 /* 채팅보드 */
 .topBox .chatBoard {
-  border-radius: 5px ;
   position: relative;
+  color: #eee;
   border: 5px solid #333;
   width: 505px;
   text-align: left;
   overflow: scroll;
+  border-radius: 5px ;
+  background: #254f45;
 }
 .topBox .chatBoard div {
-  font-size: small;
+  font-size: 0.75em;
   width: 100%;
   padding: 10px;
   box-sizing: border-box;
@@ -300,6 +315,7 @@ body{
   padding: 2px;
   transform: translate(-50%,-50%);
   width: 50%;
+  
 }
 .topBox .chatBoard::-webkit-scrollbar{
   display: none;
@@ -316,6 +332,12 @@ body{
   border-radius: 5px;
   background-color: #fefeff3c;
 }
+[class ^= 'player'] p:nth-child(1){
+  border-bottom: 2px solid;
+}
+[class ^= 'player'] p:nth-child(2){
+  text-align: center;
+}
 /* 카테고리 모달 */
 div.gameModal .CategoryModal {
   position: absolute;
@@ -330,6 +352,38 @@ div.gameModal .CategoryModal {
 div.gameModal .CategoryModal button:not(:last-child){
   margin-right: 10px;
 }
-@media (max-width:600px){ /*가로 너비가 600px 이하일 때 아래 스타일 적용*/
-  
+@media screen and (max-width: 1200px) {
+  body{
+    height: inherit;
+    background-size: cover;
+  }
+  [class $= 'inner'] {
+    width: 85vw;
+    margin: auto;
+    padding: 30px 0 30px 0;
+  }
+  #main .room_left {
+    width: 50%;
+    float: left;
+    margin: auto;
+  }
+  #main .room_right {
+    width: 40%;
+    float: right;
+    margin: auto;
+  }
+  #main .user_list {
+    width: 100%;
+  }
+  #main .room_list {
+    width: 100%;
+  }
+}
+@media screen and (max-width: 800px){
+  body{
+    font-size: 0.5em;
+  }
+  .loginModal {
+    background: url(../img/자산\ 1.png) no-repeat center center/100%,url(../img/background.png) no-repeat center center /cover;
+}
 }

@@ -5,7 +5,7 @@ window.onload = ()=>{
     location.reload()
   })
   //방생성 버튼
-  let gnbSoundBtn = document.querySelector('#header > div > nav > ul > li:nth-child(2) > a')
+  let gnbSoundBtn = document.querySelector('#header > div > nav > ul > li:nth-child(1) > a > i')
   // 클라이언트가 접속한 방
   let joinedRoom = ''
   // 로그인한 플레이어의 정보
@@ -13,6 +13,7 @@ window.onload = ()=>{
   // 로그인 모달창
   const loginModal = document.querySelector('.loginModal')
   const loginModalInput = document.querySelector('.loginModal input')
+  const joinBtn = document.querySelector('.joinBtn')
   loginModalInput.focus()
   let nickname = ''
   //방 목록 데이터 받아오고 전달
@@ -29,6 +30,15 @@ window.onload = ()=>{
       socket.emit('nickname',nickname)
       loginModal.remove()  
     }
+  })
+  joinBtn.addEventListener('click',(e)=>{
+      if(nickname.includes(' ')) return alert('공백 안됨')
+      if(nickname === '') return alert('암것도 안적엇다잉')
+      if(nickname.length > 7) return alert('8자이상 안되는데?')
+      if(loggedPlayer[nickname]) return alert('이미 사용되고 있는 닉네임')
+      playSound([soundBtn,gnbSoundBtn])
+      socket.emit('nickname',nickname)
+      loginModal.remove()  
   })
   // 유저 테이블
   const userTable = document.querySelector('.user_list table')
@@ -82,7 +92,8 @@ window.onload = ()=>{
   let createRoom = document.querySelector('.createRoomModal')  
   let roomNameInput = document.querySelector('.roomName')
   let roomPasswordInput = document.querySelector('.roomPassword')  
-  let removeRoomBtn = document.querySelector('div.createRoomModal > button')  
+  let removeRoomBtn = document.querySelector('.removeBtn')
+  let createBtn = document.querySelector('.createBtn')  
   let 방정보 = {
     방제목 : '',
     방비밀번호 : ''
@@ -98,6 +109,13 @@ window.onload = ()=>{
   removeRoomBtn.addEventListener('click',(e)=>{
     playBtnSound()
     createRoom.style.display = 'none'
+  })
+  //방생성버튼클릭
+  createBtn.addEventListener('click',(e)=>{
+    playEnterSound()
+    socket.emit('createRoom',방정보)
+    createRoom.style.display = 'none'
+    addGameRoom()
   })
   //input값에 값을 입력하면 방제목에 저장
   roomNameInput.addEventListener('input',e=>{
@@ -303,9 +321,9 @@ window.onload = ()=>{
     let button = document.createElement('button')
     modal.classList.add('passwordModal')
     modal.appendChild(modalBox)
-    modalBox.appendChild(button)
     modalBox.appendChild(label)
     modalBox.appendChild(input)
+    modalBox.appendChild(button)
     button.innerText = 'X'
     label.innerText ='방비밀번호는..?'
     document.querySelector('body').append(modal)  
@@ -466,11 +484,27 @@ window.onload = ()=>{
   // 설명한 유저의 채팅
   socket.on('explanation',(data)=>{
     let playerBox = document.querySelector(`div.player${data.playNumber}`)
-    playerBox.innerHTML = `<p>${data.nickname} : ${data.value}</p>`
+    playerBox.innerHTML = `<p>${data.nickname}</p> <p>${data.value}</p>`
     waiting = true
   })
   //투표의 결과
-  socket.on('result',(data)=>{
+  function wait(t){
+    return new Promise((resolve)=>{
+      let timer = setInterval(() => {
+        let min = parseInt(t/60)
+        let sec = t%60
+        t--
+        console.log(min,sec)
+        if(t < 0){
+          clearInterval(timer)
+          resolve()
+        }
+      }, 1000);
+      
+    })
+  }
+  socket.on('result',async (data)=>{
+    await wait(5)
     alert(`${data.votedUser}는(은) ${data.result ? '라이어가 맞습니다': '라이어가 아닙니다'}`)
     let chatBoard = document.querySelector('div.chatBoard')
     let div = document.createElement('div')

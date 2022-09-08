@@ -7,6 +7,11 @@ function playSound(arr){
   arr.forEach(e=>{
     e?.addEventListener('click',()=>{
       bgm.paused ? bgm.play() : bgm.pause()
+      if(e.className ==='fa-solid fa-volume-low'){
+        e.className='fa-solid fa-volume-xmark'
+      }else{
+        e.className='fa-solid fa-volume-low'
+      }
     })
   })
 }
@@ -15,9 +20,7 @@ function playBtnSound(element){
   btnSound.src = '../sound/085_마우스클릭.mp3'
   btnSound.volume = 0.2
   btnSound.play()
-  btnSound.addEventListener('ended',()=>{
-    console.log('하이')
-  })
+
 }
 function playEnterSound(element){
   let enterSound = new Audio()
@@ -40,11 +43,3 @@ function playWin(element){
 
 let soundBtn = document.createElement('i')
 soundBtn.classList.add(['fa-solid'],['fa-volume-low'])
-soundBtn.addEventListener('click',(e)=>{
-  e.preventDefault()
-  if(soundBtn.className ==='fa-solid fa-volume-low'){
-    soundBtn.className='fa-solid fa-volume-xmark'
-  }else{
-    soundBtn.className='fa-solid fa-volume-low'
-  }
-})
