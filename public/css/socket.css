@@ -157,7 +157,7 @@ input {
   height: 100%;
 }
 .createRoomModal {
-  display: none;
+  visibility: hidden;
   flex-direction: column;
   position: absolute;
   text-align: center;
