@@ -17,6 +17,61 @@ window.onload = ()=>{
   const loginModal = document.querySelector('.loginModal')
   const loginModalInput = document.querySelector('.loginModal input')
   const joinBtn = document.querySelector('.joinBtn')
+  const character = document.querySelector('.character')
+  const leftBtn = document.querySelector('button.characterLeftBtn')
+  const rightBtn = document.querySelector('button.characterRightBtn')
+  //캐릭터 변경
+  let characterObject = {
+    '1' : {
+      'position':{
+        x:'-14px',
+        y:'0px'
+      },
+      'width': '72px',
+      'height': '76px'
+    },
+    '2' : {
+      'position':{
+        x:'-117px',
+        y:'0px'
+      },
+      'width': '78px',
+      'height': '73px'
+    },
+    '3' : {
+      'position':{
+        x:'-234px',
+        y:'-7px'
+      },
+      'width': '69px',
+      'height': '63px'
+    },
+    '4' : {
+      'position':{
+        x:'-342px',
+        y:'0px'
+      },
+      'width': '70px',
+      'height': '69px'
+    }
+  }
+  let currentNum = 0;
+  leftBtn.addEventListener('click',()=>{
+    currentNum += 1
+    if(currentNum > 4) currentNum = 1
+    character.style.backgroundPositionX = characterObject[currentNum].position.x
+    character.style.backgroundPositionY = characterObject[currentNum].position.y
+    character.style.width = characterObject[currentNum].width
+    character.style.height = characterObject[currentNum].height
+  })
+  rightBtn.addEventListener('click',()=>{
+    currentNum -= 1
+    if(currentNum < 1) currentNum = 4
+    character.style.backgroundPositionX = characterObject[currentNum].position.x
+    character.style.backgroundPositionY = characterObject[currentNum].position.y
+    character.style.width = characterObject[currentNum].width
+    character.style.height = characterObject[currentNum].height
+  })
   loginModalInput.focus()
   let nickname = ''
   //방 목록 데이터 받아오고 전달
@@ -30,7 +85,7 @@ window.onload = ()=>{
       if(nickname.length > 7) return alert('8자이상 안되는데?')
       if(loggedPlayer[nickname]) return alert('이미 사용되고 있는 닉네임')
       playSound([soundBtn,gnbSoundBtn])
-      socket.emit('nickname',nickname)
+      socket.emit('nickname',{nickname,currentNum})
       loginModal.remove()  
     }
   })
@@ -158,7 +213,8 @@ window.onload = ()=>{
     let {player,roomName,roomNumber,password,participants} = room
     addRoom(player,roomName,roomNumber,password,participants)
     let playerBox = document.querySelector(`div.player${player[socket.id].playNumber}`)
-    playerBox.innerHTML=`<p>${player[socket.id].nickname}</p>`
+    playerBox.innerHTML=`<p>${player[socket.id].nickname}</p><div class='character'></div>`
+    
   })
 
   //방 참가
@@ -302,7 +358,7 @@ window.onload = ()=>{
     joinedRoom = data.room
     players.forEach(player=>{
       let playerBox = document.querySelector(`div.player${player.playNumber}`)
-      playerBox.innerHTML = `<p>${player.nickname}</p>`
+      playerBox.innerHTML = `<p>${player.nickname}</p><div class='character'></div>`
       if(player.ready){  
         playerBox.style.background='red'
       }else{

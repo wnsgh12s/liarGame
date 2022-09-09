@@ -48,9 +48,10 @@ io.on('connection',function(socket){
   //유적 닉네임 입력하면 유저arr에 넣어주기
    socket.on('nickname',(data)=>{
     user[socket.id] = {
-        'nickname' : data,
+        'nickname' : data.nickname,
         'id' : socket.id,
-        'joinedRoom' : ''  
+        'joinedRoom' : '',
+        'character' : data.currentNum   
       }
     //애들이 들어올때마다 유저 닉네임 쏴주기
     io.emit('userList',user)

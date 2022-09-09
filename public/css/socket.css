@@ -134,6 +134,32 @@ input {
   font-size: 2em;
   margin-bottom: 30px;
 }
+.loginModal .characterBox {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  margin: auto;
+}
+.character {
+  background: url('../img/OBJECTS.png') no-repeat -117px 0;
+	width: 78px;
+	height: 73px;
+  margin: auto;
+}
+.loginModalBox .character button {
+  position: absolute;
+}
+.loginModalBox .character button:nth-child(1){
+  left: -50%;
+  top: 50%;
+  transform: translateY(-50%);
+
+}
+.loginModalBox .character button:nth-child(2){
+  top: 50%;
+  right: -50%;
+  transform: translateY(-50%);
+}
 .loginModalBox label{
   font-size: 2.5em;
   margin-bottom: 15px
