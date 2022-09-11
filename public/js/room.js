@@ -18,9 +18,7 @@ window.onload = ()=>{
   const loginModalInput = document.querySelector('.loginModal input')
   const joinBtn = document.querySelector('.joinBtn')
   const character = document.querySelector('.character')
-  const leftBtn = document.querySelector('button.characterLeftBtn')
-  const rightBtn = document.querySelector('button.characterRightBtn')
-  //캐릭터 변경
+  //캐릭터
   let characterObject = {
     '1' : {
       'position':{
@@ -55,7 +53,21 @@ window.onload = ()=>{
       'height': '69px'
     }
   }
-  let currentNum = 0;
+  let currentNum = 1;
+  function createCharacter(num){
+    const characterImg = document.createElement('div')
+    characterImg.style.backgroundImage = 'url(../img/OBJECTS.png)'
+    characterImg.style.backgroundPositionX = characterObject[num].position.x
+    characterImg.style.backgroundPositionY = characterObject[num].position.y
+    characterImg.style.width = characterObject[num].width
+    characterImg.style.height = characterObject[num].height
+    characterImg.style.margin='auto'
+    return characterImg
+  }
+  const leftBtn = document.querySelector('button.characterLeftBtn')
+  const rightBtn = document.querySelector('button.characterRightBtn')
+  //캐릭터 변경
+  
   leftBtn.addEventListener('click',()=>{
     currentNum += 1
     if(currentNum > 4) currentNum = 1
@@ -213,8 +225,8 @@ window.onload = ()=>{
     let {player,roomName,roomNumber,password,participants} = room
     addRoom(player,roomName,roomNumber,password,participants)
     let playerBox = document.querySelector(`div.player${player[socket.id].playNumber}`)
-    playerBox.innerHTML=`<p>${player[socket.id].nickname}</p><div class='character'></div>`
-    
+    playerBox.innerHTML=`<p>${player[socket.id].nickname}</p>`
+    playerBox.appendChild(createCharacter(currentNum))
   })
 
   //방 참가
@@ -358,7 +370,8 @@ window.onload = ()=>{
     joinedRoom = data.room
     players.forEach(player=>{
       let playerBox = document.querySelector(`div.player${player.playNumber}`)
-      playerBox.innerHTML = `<p>${player.nickname}</p><div class='character'></div>`
+      playerBox.innerHTML = `<p>${player.nickname}</p>`
+      playerBox.appendChild(createCharacter(player.character))
       if(player.ready){  
         playerBox.style.background='red'
       }else{
@@ -369,6 +382,7 @@ window.onload = ()=>{
   socket.on('joinedRoomData',(data)=>{
     let playerBox = document.querySelector(`div.player${data.playNumber}`)
     playerBox.innerHTML=`<p>${data.nickname}</p>`
+    playerBox.appendChild(createCharacter(data.character))
   })
   //방에 패스워드가 있다면 패스워드창 띄워주기
   socket.on('roomPassword',(data)=>{

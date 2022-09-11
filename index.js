@@ -53,6 +53,7 @@ io.on('connection',function(socket){
         'joinedRoom' : '',
         'character' : data.currentNum   
       }
+      console.log(user)
     //애들이 들어올때마다 유저 닉네임 쏴주기
     io.emit('userList',user)
   })
@@ -84,7 +85,8 @@ io.on('connection',function(socket){
       'ready': false,
       'liar' : false,
       'id' : socket.id,
-      'playNumber' : numberAssignment(roomData.player)
+      'playNumber' : numberAssignment(roomData.player),
+      'character' : user[socket.id].character
     }
     user[socket.id].joinedRoom = `room${RoomCount}` 
     roomDataObj[`room${RoomCount}`] = roomData
@@ -136,7 +138,8 @@ io.on('connection',function(socket){
         id: socket.id,
         ready: false,
         liar: false,
-        playNumber : numberAssignment(roomDataObj[data].player)
+        playNumber : numberAssignment(roomDataObj[data].player),
+        character : user[socket.id].character
       }
       user[socket.id].joinedRoom = roomDataObj[data].roomNumber
       io.to(socket.id).emit('noPassword',{room:data,player :roomDataObj[data].player[socket.id] , players: roomDataObj[data].player})
@@ -153,7 +156,8 @@ io.on('connection',function(socket){
         id: socket.id,
         ready: false,
         liar: false,
-        playNumber : numberAssignment(roomDataObj[data].player)
+        playNumber : numberAssignment(roomDataObj[data].player),
+        character : user[socket.id].character
       }
     }
     user[socket.id].joinedRoom = data
