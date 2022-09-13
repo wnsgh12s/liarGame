@@ -347,6 +347,7 @@ input {
 }
 /* 플레이어박스 스타일 */
 [class ^= 'player']{
+  display: flex;
   border: 5px solid;
   box-sizing: border-box;
   width: 100%;
@@ -355,7 +356,7 @@ input {
   background-color: #fefeff3c;
 }
 [class ^= 'player'] p:nth-child(1){
-  border-bottom: 2px solid;
+  border-right: 2px solid;
 }
 [class ^= 'player'] p:nth-child(2){
   text-align: center;

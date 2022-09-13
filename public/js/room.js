@@ -225,8 +225,11 @@ window.onload = ()=>{
     let {player,roomName,roomNumber,password,participants} = room
     addRoom(player,roomName,roomNumber,password,participants)
     let playerBox = document.querySelector(`div.player${player[socket.id].playNumber}`)
-    playerBox.innerHTML=`<p>${player[socket.id].nickname}</p>`
-    playerBox.appendChild(createCharacter(currentNum))
+    let p = document.createElement('p')
+    p.innerHTML=player[socket.id].nickname
+    p.appendChild(createCharacter(currentNum))
+    playerBox.appendChild(p)
+    
   })
 
   //방 참가
