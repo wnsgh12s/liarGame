@@ -131,7 +131,6 @@ io.on('connection',function(socket){
     })
     //패스워드가 없으면 
     if(roomDataObj[data].roomNumber === data && roomDataObj[data].password === ''){
-      socket.join(data)
       roomDataObj[data].participants ++
       roomDataObj[data].player[socket.id] = {
         nickname: user[socket.id].nickname,
@@ -144,12 +143,13 @@ io.on('connection',function(socket){
       user[socket.id].joinedRoom = roomDataObj[data].roomNumber
       io.to(socket.id).emit('noPassword',{room:data,player :roomDataObj[data].player[socket.id] , players: roomDataObj[data].player})
       io.to(data).emit('joinedRoomData',roomDataObj[data].player[socket.id])
+      socket.join(data)
     }else if(roomDataObj[data].roomNumber === data && roomDataObj[data].password !== '' ){
       io.to(socket.id).emit('roomPassword', [roomDataObj[data].password,data])
     }
   })
 //패스워드가 일치하면 접속시키기
-  socket.on('passwordMatch',(data)=>{
+  socket.on('passwordMatch', async (data)=>{
     if(roomDataObj[data].roomNumber === data){
       roomDataObj[data].player[socket.id] = {
         nickname: user[socket.id].nickname,
@@ -161,8 +161,8 @@ io.on('connection',function(socket){
       }
     }
     user[socket.id].joinedRoom = data
-    socket.join(data)
     io.to(data).emit('joinedRoomData',roomDataObj[data].player[socket.id])
+    socket.join(data)
   })
 //방 나가기 버튼을 클릭하면 유저 목록과 방데이터에서 제거
   socket.on('leaveRoom',(data)=>{
@@ -282,13 +282,9 @@ io.on('connection',function(socket){
         return a[1] > b[1] ? a : b
       })
       roomDataObj[data.room].voteArr = []
-      /**
-       * @todo 이거해야돼 
-       */
       //투표자가 없을때
       if(selectedPlayer[0] === 'null'){
-        console.log('으이?')
-        socket.emit('alert',{'alert' :'투표자가 없습니다 추가 설명 타임', 'state': false})
+        socket.emit('alert',{'alert' :'투표자가 없습니다 추가 설명 시간', 'state': false})
         return io.to(data.room).emit('gameStart',roomDataObj[data.room].player);
       }
       if(roomDataObj[data.room].liar === selectedPlayer[0]){
@@ -300,7 +296,7 @@ io.on('connection',function(socket){
       }  
     }
   })
-  
+
   socket.on('liarVote',(data)=>{
     if(data.value === roomDataObj[data.room].answer){
       io.to(data.room).emit('answer',{'answer':true ,'value' : data.value})

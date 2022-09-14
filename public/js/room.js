@@ -1,7 +1,8 @@
 window.onload = ()=>{
   document.querySelector('.loadingModal').remove()
-  let body = document.querySelector('body')
-  body.style.display='block'
+  function createAlert(header,content){
+     
+  }
   const socket = io() 
   //유저의 연결이 끊기면 새로고침
   socket.on('disconnect',()=>{
@@ -19,49 +20,11 @@ window.onload = ()=>{
   const joinBtn = document.querySelector('.joinBtn')
   const character = document.querySelector('.character')
   //캐릭터
-  let characterObject = {
-    '1' : {
-      'position':{
-        x:'-14px',
-        y:'0px'
-      },
-      'width': '72px',
-      'height': '76px'
-    },
-    '2' : {
-      'position':{
-        x:'-117px',
-        y:'0px'
-      },
-      'width': '78px',
-      'height': '73px'
-    },
-    '3' : {
-      'position':{
-        x:'-234px',
-        y:'-7px'
-      },
-      'width': '69px',
-      'height': '63px'
-    },
-    '4' : {
-      'position':{
-        x:'-342px',
-        y:'0px'
-      },
-      'width': '70px',
-      'height': '69px'
-    }
-  }
   let currentNum = 1;
   function createCharacter(num){
     const characterImg = document.createElement('div')
-    characterImg.style.backgroundImage = 'url(../img/OBJECTS.png)'
-    characterImg.style.backgroundPositionX = characterObject[num].position.x
-    characterImg.style.backgroundPositionY = characterObject[num].position.y
-    characterImg.style.width = characterObject[num].width
-    characterImg.style.height = characterObject[num].height
-    characterImg.style.margin='auto'
+    characterImg.classList.add('character')
+    characterImg.style.backgroundImage = `url(../img/${num}.png)`
     return characterImg
   }
   const leftBtn = document.querySelector('button.characterLeftBtn')
@@ -71,18 +34,12 @@ window.onload = ()=>{
   leftBtn.addEventListener('click',()=>{
     currentNum += 1
     if(currentNum > 4) currentNum = 1
-    character.style.backgroundPositionX = characterObject[currentNum].position.x
-    character.style.backgroundPositionY = characterObject[currentNum].position.y
-    character.style.width = characterObject[currentNum].width
-    character.style.height = characterObject[currentNum].height
+    character.style.backgroundImage = `url(../img/${currentNum}.png)`
   })
   rightBtn.addEventListener('click',()=>{
     currentNum -= 1
     if(currentNum < 1) currentNum = 4
-    character.style.backgroundPositionX = characterObject[currentNum].position.x
-    character.style.backgroundPositionY = characterObject[currentNum].position.y
-    character.style.width = characterObject[currentNum].width
-    character.style.height = characterObject[currentNum].height
+    character.style.backgroundImage = `url(../img/${currentNum}.png)`
   })
   loginModalInput.focus()
   let nickname = ''
@@ -107,7 +64,7 @@ window.onload = ()=>{
       if(nickname.length > 7) return alert('8자이상 안되는데?')
       if(loggedPlayer[nickname]) return alert('이미 사용되고 있는 닉네임')
       playSound([soundBtn,gnbSoundBtn])
-      socket.emit('nickname',nickname)
+      socket.emit('nickname',{nickname,currentNum })
       loginModal.remove()  
   })
   // 유저 테이블
@@ -225,11 +182,15 @@ window.onload = ()=>{
     let {player,roomName,roomNumber,password,participants} = room
     addRoom(player,roomName,roomNumber,password,participants)
     let playerBox = document.querySelector(`div.player${player[socket.id].playNumber}`)
-    let p = document.createElement('p')
-    p.innerHTML=player[socket.id].nickname
-    p.appendChild(createCharacter(currentNum))
-    playerBox.appendChild(p)
-    
+    let div = document.createElement('div')
+    div.style.borderLeft = '2px solid'
+    let h2 = document.createElement('h2')
+    h2.style.borderBottom = '2px solid'
+    h2.innerText=`${player[socket.id].nickname}`
+    div.classList.add('user')
+    div.appendChild(h2)
+    playerBox.appendChild(createCharacter(currentNum))
+    playerBox.appendChild(div)
   })
 
   //방 참가
@@ -368,13 +329,23 @@ window.onload = ()=>{
   })
   //패스워드 없으면 그냥참가
   socket.on('noPassword',(data)=>{
+    //접속했던유저의 데이터
     let players = Object.values(data.players)
     addGameRoom() 
     joinedRoom = data.room
     players.forEach(player=>{
+      if(player.playNumber === undefined) return
       let playerBox = document.querySelector(`div.player${player.playNumber}`)
-      playerBox.innerHTML = `<p>${player.nickname}</p>`
+      let div = document.createElement('div')
+      console.log(div)
+      div.style.borderLeft = '2px solid'
+      let h2 = document.createElement('h2')
+      h2.style.borderBottom = '2px solid'
+      h2.innerText=`${player.nickname}`
+      div.classList.add('user')
+      div.appendChild(h2)
       playerBox.appendChild(createCharacter(player.character))
+      playerBox.appendChild(div)
       if(player.ready){  
         playerBox.style.background='red'
       }else{
@@ -383,9 +354,18 @@ window.onload = ()=>{
     })
   })
   socket.on('joinedRoomData',(data)=>{
+    console.log('접속한애',data)
+    //접속한 유저의 데이타
     let playerBox = document.querySelector(`div.player${data.playNumber}`)
-    playerBox.innerHTML=`<p>${data.nickname}</p>`
+    let div = document.createElement('div')
+    div.style.borderLeft = '2px solid'
+    let h2 = document.createElement('h2')
+    h2.style.borderBottom = '2px solid'
+    h2.innerText=`${data.nickname}`
+    div.classList.add('user')
+    div.appendChild(h2)
     playerBox.appendChild(createCharacter(data.character))
+    playerBox.appendChild(div)
   })
   //방에 패스워드가 있다면 패스워드창 띄워주기
   socket.on('roomPassword',(data)=>{
@@ -433,7 +413,14 @@ window.onload = ()=>{
     let deleteRoom = document.querySelector('.' + data)
     deleteRoom?.remove()
   })
-  function createModal(element,arr,type) {
+    function createModal(arr,type,contents) {
+    let modal = document.querySelector('div.gameModal')
+    let div = document.createElement('div')
+    div.classList.add('CategoryModal')
+    let h2 = document.createElement('h2')
+    h2.innerText=contents
+    modal.appendChild(div)
+    div.appendChild(h2)
     //모달의 지속시간
     let emit = type
     let time = 15
@@ -441,7 +428,7 @@ window.onload = ()=>{
       time --
       if(time < 0){
         clearInterval(timer)
-        element.remove()
+        div.remove()
         socket.emit(emit,{'value' : null, 'room' : joinedRoom ,'name': nickname})
       }
     }, 1000);
@@ -450,12 +437,12 @@ window.onload = ()=>{
       let btn = document.createElement('button')
       btn.innerHTML = arr[i]
       btn.value = arr[i]
-      element.appendChild(btn)
+      div.appendChild(btn)
       btn.addEventListener('click',(e)=>{
         playBtnSound()
         clearInterval(timer)
         socket.emit(emit,{'value' : btn.value, 'room' : joinedRoom})
-        element.remove()
+        div.remove()
       })
     }
   }
@@ -476,14 +463,7 @@ window.onload = ()=>{
     //주제 고르기 
     function category(){
       let arr = ['음식','영화','가수','나라']
-      let modal = document.querySelector('div.gameModal')
-      let div = document.createElement('div')
-      div.classList.add('CategoryModal')
-      let h2 = document.createElement('h2')
-      h2.innerText='카테고리 고르기'
-      modal.appendChild(div)
-      div.appendChild(h2)
-      createModal(div,arr,'category')
+      createModal(arr,'category','카테고리 고르기')
     }
     category()
   })
@@ -496,8 +476,9 @@ window.onload = ()=>{
   })
 
   //드디어 게임시작
-  let waiting = false
+  let waiting
   socket.on('gameStart',data=>{
+    waiting = false
     //타이머 프로미스
     let 시간 = document.querySelector('div.time')
     let players = Object.values(data)
@@ -528,7 +509,6 @@ window.onload = ()=>{
         })
       })
     }
-
     //유저수 만큼 타이머
     async function loopWait(){
       for(let i = 0; i < players.length; i++){
@@ -542,44 +522,24 @@ window.onload = ()=>{
     //유저수 만큼 설명할 시간 줬으면 투표
     async function vote(){
       await loopWait()
-      let modal = document.querySelector('div.gameModal')
-      let div = document.createElement('div')
-      div.classList.add('CategoryModal')
-      let h2 = document.createElement('h2')
-      h2.innerText='투표 하자'
-      modal.appendChild(div)
-      div.appendChild(h2)
-      let playerNames = players.map((e)=>{
-        return e.nickname
+      let playerNames = players.map((player)=>{
+        return player.nickname
       })
-      createModal(div,playerNames,'vote')
+      createModal(playerNames,'vote','투표하기')
     }
     vote()
   })
   // 설명한 유저의 채팅
   socket.on('explanation',(data)=>{
-    let playerBox = document.querySelector(`div.player${data.playNumber}`)
-    playerBox.innerHTML = `<p>${data.nickname}</p> <p>${data.value}</p>`
+    let playerBox = document.querySelector(`div.player${data.playNumber} .user`)
+    let p = document.createElement('p')
+    p.innerText=`${data.value}`
+    playerBox.appendChild(p)
     waiting = true
   })
   //투표의 결과
-  function wait(t){
-    return new Promise((resolve)=>{
-      let timer = setInterval(() => {
-        let min = parseInt(t/60)
-        let sec = t%60
-        t--
-        console.log(min,sec)
-        if(t < 0){
-          clearInterval(timer)
-          resolve()
-        }
-      }, 1000);
-      
-    })
-  }
+  let oppose
   socket.on('result',async (data)=>{
-    await wait(5)
     alert(`${data.votedUser}는(은) ${data.result ? '라이어가 맞습니다': '라이어가 아닙니다'}`)
     let chatBoard = document.querySelector('div.chatBoard')
     let div = document.createElement('div')
@@ -588,15 +548,8 @@ window.onload = ()=>{
     div.style.color='#DC2424'
     chatBoard.appendChild(div)
     if(data.result && data.votedUser === nickname){
-      let modal = document.querySelector('div.gameModal')
-      let div2 = document.createElement('div')
-      div2.classList.add('CategoryModal')
-      let h2 = document.createElement('h2')
-      h2.innerText='정답 고르기'
-      modal.appendChild(div2)
-      div2.appendChild(h2)
       let arr = data.category
-      createModal(div2,arr,'liarVote')
+      createModal(arr,'liarVote','정답고르기')
     }
   })
   //공지
