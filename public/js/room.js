@@ -1,8 +1,5 @@
 window.onload = ()=>{
   document.querySelector('.loadingModal').remove()
-  function createAlert(header,content){
-     
-  }
   const socket = io() 
   //유저의 연결이 끊기면 새로고침
   socket.on('disconnect',()=>{
@@ -573,6 +570,10 @@ window.onload = ()=>{
       chatBoard.scrollTop = chatBoard.scrollHeight
       let readyBtn = document.querySelector('button.readyBtn')
       readyBtn.style.display = 'block'
+      let p = document.querySelectorAll('[class ^= player] p')
+      p.forEach(e=>{
+        e.remove()
+      })
   })
 
   socket.on('disconnectRoom',(data)=>{

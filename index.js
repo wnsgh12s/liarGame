@@ -17,8 +17,16 @@ app.get('/',function(요청,응답){
 
 let roomDataObj = {}
 let user = {}
-let CountArr = []
-let RoomCount = 1
+let CountObj = {}
+function createCount(obj,num){
+  if(!obj[num]){
+    obj[num] = num
+    return num 
+  }else{
+    num = num + 1
+    return createCount(obj,num)
+  }
+}
 //플레이어 넘버 부여
 function numberAssignment(rooms){
   let returnNumber 
@@ -42,7 +50,6 @@ function numberAssignment(rooms){
 }
 io.on('connection',function(socket){
   //유저가 들어오면 유저목록과 생성된 방정보 쏴주기
-  
   Object.keys(user).length !== 0 && io.emit('userList',user)
   Object.keys(user).length !== 0 && io.to(socket.id).emit('roomsData',roomDataObj)
   //유적 닉네임 입력하면 유저arr에 넣어주기
@@ -53,22 +60,16 @@ io.on('connection',function(socket){
         'joinedRoom' : '',
         'character' : data.currentNum   
       }
-      console.log(user)
     //애들이 들어올때마다 유저 닉네임 쏴주기
     io.emit('userList',user)
   })
   //방생성 버튼이 눌리면 방 번호와 유저 정보 보내주기
   socket.on('createRoom',function(data){
     let {방제목,방비밀번호} = data
-    if(CountArr.includes(RoomCount)){
-      RoomCount +=1
-      CountArr.push(RoomCount)
-    }else{
-      CountArr.push(RoomCount)
-    }
-    socket.join(`room${RoomCount}`)
+    let count = createCount(CountObj,1)
+    socket.join(`room${count}`)
     let roomData ={
-      'roomNumber' : `room${RoomCount}`,
+      'roomNumber' : `room${count}`,
       'player' : {},
       'roomName' : 방제목,
       'password' : 방비밀번호,
@@ -78,7 +79,8 @@ io.on('connection',function(socket){
       'category' : null,
       'start' : false,
       'answer': null,
-      'liar' : null
+      'liar' : null,
+      count
     }
     roomData.player[socket.id] = {
       'nickname' : user[socket.id].nickname,
@@ -88,8 +90,8 @@ io.on('connection',function(socket){
       'playNumber' : numberAssignment(roomData.player),
       'character' : user[socket.id].character
     }
-    user[socket.id].joinedRoom = `room${RoomCount}` 
-    roomDataObj[`room${RoomCount}`] = roomData
+    user[socket.id].joinedRoom = `room${count}` 
+    roomDataObj[`room${count}`] = roomData
     io.emit('createRoom',roomData)
     io.to(socket.id).emit('oneCreateRoom',roomData)
   })
@@ -105,6 +107,7 @@ io.on('connection',function(socket){
       delete user[socket.id]
     }else if(io.sockets.adapter.rooms.get(room) === undefined){
       //방 마지막 유저일때
+      roomDataObj[room].count && delete CountObj[roomDataObj[room]?.count]
       delete roomDataObj[room]
       io.emit('deleteRoom',room)
       io.emit('disconnectUser',user[socket.id]?.nickname)
@@ -169,6 +172,7 @@ io.on('connection',function(socket){
     socket.leave(data)
     if(io.sockets.adapter.rooms.get(data) === undefined){
       io.emit('deleteRoom',data)
+      delete CountObj[roomDataObj[data]?.count]
       delete roomDataObj[data]
       user[socket.id].joinedRoom = ''  
     }else{
@@ -288,7 +292,16 @@ io.on('connection',function(socket){
         return io.to(data.room).emit('gameStart',roomDataObj[data.room].player);
       }
       if(roomDataObj[data.room].liar === selectedPlayer[0]){
-        io.to(data.room).emit('result',{'votedUser':selectedPlayer[0], 'result' : true, 'category' : word[roomDataObj[data.room].category]})
+        let arr = word[roomDataObj[data.room].category]
+        arr.sort(()=> 0.5 - Math.random())
+        let arr2 = []
+        arr2.push(roomDataObj[data.room].answer)
+        for(let i= 0 ; i < 5 ; i++){
+          if(roomDataObj[data.room].answer === arr[i]) continue
+          arr2.push(arr[i])
+        } 
+        arr2.sort(()=> 0.5 - Math.random())
+        io.to(data.room).emit('result',{'votedUser':selectedPlayer[0], 'result' : true, 'category' : arr2})
         roomDataObj[data.room].start = false
       }else if(roomDataObj[data.room].liar !== selectedPlayer[0]){
         io.to(data.room).emit('result',{'votedUser':selectedPlayer[0], 'result' : false})

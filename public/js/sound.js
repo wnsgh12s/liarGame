@@ -1,6 +1,6 @@
   function playSound(arr){
     let bgm = new Audio()
-    bgm.src = '../sound/[No Copyright Music] Barbarian - Pierlo.mp3'
+    bgm.src = '../sound/[No Copyright Music] Beach Party - Kevin MacLeod.mp3'
     bgm.volume = 0.1  
     bgm.play()
     arr.forEach(e=>{

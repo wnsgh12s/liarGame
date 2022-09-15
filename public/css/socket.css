@@ -367,6 +367,9 @@ input {
   width: 70%;
   overflow: hidden;
 }
+[class ^= 'player'] div:nth-child(2) h2{
+  font-size: medium;
+}
 /* 카테고리 모달 */
 div.gameModal .CategoryModal {
   position: absolute;
