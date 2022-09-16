@@ -99,6 +99,8 @@ io.on('connection',function(socket){
   
   //소켓을 나가면 유저 데이터를 없애줌
   socket.on("disconnect", (data) => {
+    //접속한 유저가 아니면 리턴
+    if(user[socket.id] === undefined) return
     //유저가 나가면 나간 유저 배열 뒤져서 삭제하기
     let room = user[socket.id]?.joinedRoom
     if(room === ''){
