@@ -454,10 +454,11 @@ window.onload = ()=>{
   }
   socket.on('chat',(data)=>{
     playEnterSound()
+    console.log(data)
     let chatBoard = document.querySelector('body > div.gameModal > div.gameModalBox > div.topBox > div.chatBoard')
     let div = document.createElement('div')
     div.classList.add(data.nick)
-    div.innerText = `${data.nick} : ${data.chatData}`
+    div.innerText = `${data.nick} : ${data.chatData} `
     chatBoard.appendChild(div)
     chatBoard.scrollTop = chatBoard.scrollHeight
   })

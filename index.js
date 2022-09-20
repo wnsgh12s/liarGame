@@ -4,7 +4,7 @@ const http = require('http').createServer(app);
 const {Server} = require('socket.io');
 const io = new Server(http)
 const word = require('./word')
-app.use(express.static(__dirname + "/public"));
+app.use(express.static(__dirname + "/public")); 
 let port = process.env.PORT || 8080
 
 http.listen(port,(요청,응답)=>{
@@ -218,7 +218,9 @@ io.on('connection',function(socket){
   socket.on('chat',(chatData)=>{
     let {room} = chatData
     io.to(room).emit('chat',chatData)
+    console.log(chatData)
   })
+
   socket.on('explanation',(chatData)=>{
     io.to(chatData.joinedRoom).emit('explanation',chatData)
   })

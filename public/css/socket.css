@@ -249,6 +249,7 @@ input {
   background: url(../img/background3.jpg) no-repeat center center /cover;
 }
 .buttonBox{
+    color: #eee;
     font-family: 'GmarketSansMedium';
     display: flex;
     justify-content: center;
