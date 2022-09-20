@@ -1,4 +1,11 @@
-window.onload = ()=>{
+window.onload = ()=>{ 
+  function ImageRoading(arr){
+    for(let i = 0; i<arr.length ; i++){
+      let img = new Image()
+      img.src = arr[i]
+    }
+  }
+  ImageRoading(['../img/background3.jpg','../img/1.png','../img/2.png','../img/3.png'])
   document.querySelector('.loadingModal').remove()
   const socket = io() 
   //유저의 연결이 끊기면 새로고침
