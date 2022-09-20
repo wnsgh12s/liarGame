@@ -1,10 +1,12 @@
-window.onload = ()=>{ 
-  function ImageRoading(arr){
-    for(let i = 0; i<arr.length ; i++){
-      let img = new Image()
-      img.src = arr[i]
-    }
+function ImageRoading(arr){
+  for(let i = 0; i < arr.length ; i++){
+    console.log('dd')
+    let img = new Image()
+    img.onlo
+    img.src = arr[i]
   }
+}
+window.onload = ()=>{
   ImageRoading(['../img/background3.jpg','../img/1.png','../img/2.png','../img/3.png'])
   document.querySelector('.loadingModal').remove()
   const socket = io() 
