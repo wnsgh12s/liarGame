@@ -2,7 +2,6 @@ function ImageRoading(arr){
   for(let i = 0; i < arr.length ; i++){
     console.log('dd')
     let img = new Image()
-    img.onlo
     img.src = arr[i]
   }
 }
@@ -319,6 +318,7 @@ window.onload = ()=>{
       })
       _chatInput.value = ''
       chat = ''
+      console.log(chat)
     }
   })
   }
