@@ -319,7 +319,7 @@ window.onload = ()=>{
     // 준비를 했으면 준비한 유저의 색깔 넣어주자 
     let playerBox = document.querySelector(`div.player${playNumber}`)
     if(ready){  
-      playerBox.style.background='red'
+      playerBox.style.background='#8987ff96'
     }else{
       playerBox.style.background='#fefeff3c'
     }
@@ -344,7 +344,7 @@ window.onload = ()=>{
       playerBox.appendChild(createCharacter(player.character))
       playerBox.appendChild(div)
       if(player.ready){  
-        playerBox.style.background='red'
+        playerBox.style.background='#8987ff96'
       }else{
         playerBox.style.background='#fefeff3c'
       }
@@ -510,10 +510,10 @@ window.onload = ()=>{
     async function loopWait(){
       for(let i = 0; i < players.length; i++){
         let playerBox = document.querySelector(`div.player${players[i].playNumber}`)
-        playerBox.style.background = 'blue'
+        playerBox.style.boxShadow = '0px 0px 20px beige'
         await wait(30,players[i].nickname.concat(' 차례'),players[i].nickname,players[i].playNumber)
         waiting = false
-        playerBox.style.background = '#fefeff3c'
+        playerBox.style.boxShadow = 'none'
       } 
     } 
     //유저수 만큼 설명할 시간 줬으면 투표
