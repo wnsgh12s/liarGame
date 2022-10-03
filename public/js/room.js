@@ -5,8 +5,8 @@ function ImageRoading(arr){
     img.src = arr[i]
   }
 }
+ImageRoading(['../img/game.jpg','../img/1.png','../img/2.png','../img/3.png'])
 window.onload = ()=>{
-  ImageRoading(['../img/background3.jpg','../img/1.png','../img/2.png','../img/3.png'])
   document.querySelector('.loadingModal').remove()
   const socket = io() 
   //유저의 연결이 끊기면 새로고침
@@ -464,6 +464,12 @@ window.onload = ()=>{
   })
   //카테고리선택
   socket.on('selectCategory',(data)=>{
+    let chatBoard = document.querySelector('div.chatBoard')
+    let div = document.createElement('div')
+    div.innerHTML = `<p>게임이 시작되었습니다.</p>`
+    chatBoard.scrollTop = chatBoard.scrollHeight
+    div.style.color='#DC2424'
+    chatBoard.appendChild(div)
     //버튼 비활성화
     let readyBtn = document.querySelector('button.readyBtn')
     readyBtn.style.display = 'none'
@@ -507,7 +513,7 @@ window.onload = ()=>{
         let value = null
         chatInput.addEventListener('input',(e)=>{
           value = e.target.value
-        })
+        })  
         chatInput.addEventListener('keydown',function sendData(e){
           if(e.key === 'Enter' && n === nickname){
             chatInput.removeEventListener('keydown',sendData)
@@ -518,12 +524,16 @@ window.onload = ()=>{
     }
     //유저수 만큼 타이머
     async function loopWait(){
-      for(let i = 0; i < players.length; i++){
+      for(let i = 0; i < players.length; i++){ 
         let playerBox = document.querySelector(`div.player${players[i].playNumber}`)
         playerBox.style.boxShadow = '0px 0px 20px beige'
         await wait(30,players[i].nickname.concat(' 차례'),players[i].nickname,players[i].playNumber)
         waiting = false
         playerBox.style.boxShadow = 'none'
+        if(i === players.length - 1){
+          await wait(20,'토론시간','없음',players[i].playNumber)
+          waiting = false
+        }
       } 
     } 
     //유저수 만큼 설명할 시간 줬으면 투표
