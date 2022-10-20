@@ -292,6 +292,14 @@ input {
   box-sizing: border-box;
   background-color: rgba(238, 238, 238, 0.208);
 }
+.gameModal .gameModalBox .startCanvas {
+  position: absolute;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  top: 0;
+  left: 0;
+}
 .gameModalBox .topBox{
   display: flex;
   height: 100%;
@@ -318,7 +326,7 @@ input {
 .topBox .chatBoard {
   position: relative;
   color: #eee;
-  border: 5px solid #333;
+  border: 5px solid #222;
   width: 50%;
   text-align: left;
   overflow: scroll;
@@ -337,9 +345,12 @@ input {
 /* 채팅보드 인풋 */
 .gameModal .middleBox{
   /* position: relative; */
-  height: 10%;
 }
 .gameModal .middleBox .chatInput{
+  width: 40%;
+  padding: 5px;
+  border: 2px solid;
+  border-radius: 5px;
   
 }
 .topBox .chatBoard::-webkit-scrollbar{

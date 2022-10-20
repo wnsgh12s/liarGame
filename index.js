@@ -233,7 +233,7 @@ io.on('connection',function(socket){
       let random = Math.floor(Math.random()*arr.length)
       value = arr[random]
     }
-    console.log('이게 왜실행되는데',category)
+    if(!io.sockets.adapter.rooms.get(category?.room)) return
     let playerLength = io.sockets.adapter.rooms.get(category?.room).size
     let voteArr = roomDataObj[category.room].voteArr
     roomDataObj[category.room].voteArr.push(value)
@@ -261,6 +261,7 @@ io.on('connection',function(socket){
   })  
   socket.on('vote',(data)=>{
     if(data.room === undefined) return
+    if(!io.sockets.adapter.rooms.get(data.room)) return
     let playerLength = io.sockets.adapter.rooms.get(data.room).size
     let voteArr = roomDataObj[data.room].voteArr
     roomDataObj[data.room].voteArr.push(data.value) 
@@ -282,7 +283,6 @@ io.on('connection',function(socket){
       })
       //투표수가 같을때
       if(filter.length > 1){
-        console.log(filter)
         socket.emit('alert',{'alert' :'동표입니다', 'state': false})
         return io.to(data.room).emit('gameStart',roomDataObj[data.room].player);
       }
@@ -305,6 +305,7 @@ io.on('connection',function(socket){
           arr2.push(arr[i])
         } 
         arr2.sort(()=> 0.5 - Math.random())
+        console.log(roomDataObj[data.room].answer)
         io.to(data.room).emit('result',{'votedUser':selectedPlayer[0], 'result' : true, 'category' : arr2})
         roomDataObj[data.room].start = false
       }else if(roomDataObj[data.room].liar !== selectedPlayer[0]){

@@ -3,6 +3,7 @@
     bgm.src = '../sound/[No Copyright Music] Beach Party - Kevin MacLeod.mp3'
     bgm.volume = 0.1  
     bgm.play()
+    bgm.loop = true
     arr.forEach(e=>{
       e?.addEventListener('click',()=>{
         bgm.paused ? bgm.play() : bgm.pause()
@@ -13,13 +14,13 @@
         }
       })
     })
+    return bgm
   }
   function playBtnSound(element){
     let btnSound = new Audio()
     btnSound.src = '../sound/085_마우스클릭.mp3'
     btnSound.volume = 0.2
     btnSound.play()
-  
   }
   function playEnterSound(element){
     let enterSound = new Audio()
@@ -36,6 +37,12 @@
   function playWin(element){
     let sound = new Audio()
     sound.src = '../sound/082_띵.mp3'
+    sound.volume = 0.1
+    sound.play()
+  }
+  function playStart(element){
+    let sound = new Audio()
+    sound.src = '../sound/countDown.mp3'
     sound.volume = 0.1
     sound.play()
   }

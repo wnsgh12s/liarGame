@@ -1,3 +1,4 @@
+
 function ImageRoading(arr){
   for(let i = 0; i < arr.length ; i++){
     console.log('dd')
@@ -7,6 +8,7 @@ function ImageRoading(arr){
 }
 ImageRoading(['../img/game.jpg','../img/1.png','../img/2.png','../img/3.png'])
 window.onload = ()=>{
+  let sound
   document.querySelector('.loadingModal').remove()
   const socket = io() 
   //유저의 연결이 끊기면 새로고침
@@ -58,7 +60,7 @@ window.onload = ()=>{
       if(nickname === '') return alert('암것도 안적엇다잉')
       if(nickname.length > 7) return alert('8자이상 안되는데?')
       if(loggedPlayer[nickname]) return alert('이미 사용되고 있는 닉네임')
-      playSound([soundBtn,gnbSoundBtn])
+      sound = playSound([soundBtn,gnbSoundBtn])
       socket.emit('nickname',{nickname,currentNum})
       loginModal.remove()  
     }
@@ -68,7 +70,7 @@ window.onload = ()=>{
       if(nickname === '') return alert('암것도 안적엇다잉')
       if(nickname.length > 7) return alert('8자이상 안되는데?')
       if(loggedPlayer[nickname]) return alert('이미 사용되고 있는 닉네임')
-      playSound([soundBtn,gnbSoundBtn])
+      sound = playSound([soundBtn,gnbSoundBtn])
       socket.emit('nickname',{nickname,currentNum })
       loginModal.remove()  
   })
@@ -463,22 +465,33 @@ window.onload = ()=>{
     chatBoard.scrollTop = chatBoard.scrollHeight
   })
   //카테고리선택
-  socket.on('selectCategory',(data)=>{
-    let chatBoard = document.querySelector('div.chatBoard')
-    let div = document.createElement('div')
-    div.innerHTML = `<p>게임이 시작되었습니다.</p>`
-    chatBoard.scrollTop = chatBoard.scrollHeight
-    div.style.color='#DC2424'
-    chatBoard.appendChild(div)
-    //버튼 비활성화
-    let readyBtn = document.querySelector('button.readyBtn')
-    readyBtn.style.display = 'none'
-    //주제 고르기 
-    function category(){
-      let arr = ['음식','영화','가수','나라']
-      createModal(arr,'category','카테고리 고르기')
-    }
-    category()
+  socket.on('selectCategory',async (data)=>{
+    let canvasBox = document.querySelector('.gameModalBox')
+    let canvas = document.createElement('div')
+    canvas.classList.add('startCanvas')
+    canvasBox.append(canvas)
+    let start = startAnim('.startCanvas','start')
+    sound.pause()
+    playStart()
+    start.addEventListener('complete',()=>{
+      canvas.remove()
+      start.destroy()
+      let chatBoard = document.querySelector('div.chatBoard')
+      let div = document.createElement('div')
+      div.innerHTML = `<p>게임이 시작되었습니다.</p>`
+      chatBoard.scrollTop = chatBoard.scrollHeight
+      div.style.color='#DC2424'
+      chatBoard.appendChild(div)
+      //버튼 비활성화
+      let readyBtn = document.querySelector('button.readyBtn')
+      readyBtn.style.display = 'none'
+      //주제 고르기 
+      function category(){
+        let arr = ['음식','영화','가수','나라']
+        createModal(arr,'category','카테고리 고르기')
+      }
+      category()
+    })
   })
   //카테고리대로 변경
   socket.on('category',(data)=>{
@@ -531,7 +544,7 @@ window.onload = ()=>{
         waiting = false
         playerBox.style.boxShadow = 'none'
         if(i === players.length - 1){
-          await wait(20,'토론시간','없음',players[i].playNumber)
+          await wait(1 ,'토론시간','없음',players[i].playNumber)
           waiting = false
         }
       } 
@@ -578,13 +591,21 @@ window.onload = ()=>{
       alert(data.alert)
     }else{
       alert(data.alert)
-    }
-  })
+      }
+    })
   socket.on('answer',(data)=>{
       let chatBoard = document.querySelector('div.chatBoard')
       let div = document.createElement('div')
+      let canvasBox = document.querySelector('.gameModalBox')
+      let canvas = document.createElement('div')
+      canvas.classList.add('startCanvas')
+      canvasBox.append(canvas)
       data.answer ? playLose() : playWin()
-      div.innerHTML = `<p>${data.answer ? `라이어가 선택한 답은 ${data.value}!! 정답을 맞췄습니다 라이어 승리!`: `라이어가 선택한 답은 ${data.value}이며 정답을 틀렸습니다. 라이어패배`}</p>`
+      let answerAnim = data.answer ? startAnim('.startCanvas','liarwin') : startAnim('.startCanvas','liarLose')
+      answerAnim.addEventListener('complete',()=>{
+        canvas.remove()
+        answerAnim.destroy()
+        div.innerHTML = `<p>${data.answer ? `라이어가 선택한 답은 ${data.value}!! 정답을 맞췄습니다 라이어 승리!`: `라이어가 선택한 답은 ${data.value}이며 정답을 틀렸습니다. 라이어패배`}</p>`
       div.style.color='#DC2424'
       chatBoard.appendChild(div)
       chatBoard.scrollTop = chatBoard.scrollHeight
@@ -593,6 +614,7 @@ window.onload = ()=>{
       let p = document.querySelectorAll('[class ^= player] p')
       p.forEach(e=>{
         e.remove()
+      })  
       })
   })
 

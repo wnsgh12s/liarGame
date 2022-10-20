@@ -51,7 +51,7 @@
   </div>
   <div class="loginModal">
     <div class="loginModalBox">
-      <h2>liar game</h2>
+      <h2>liar game</h2>  
       <div class="characterBox">
         <div class="character">
           <button class="characterLeftBtn">&#60</button>
@@ -76,13 +76,26 @@
   </div>  
   <div class="loadingModal">
     <div class="box">
-      <div id="loading"></div>
+      <div id="lottie"></div>
     </div>
   </div>
 </body>
 <script src="https://kit.fontawesome.com/8a0e2b5edd.js" crossorigin="anonymous"></script>
-<script src="./js/socket.io.js"></script>
-<script src="./js/canvas.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.9.6/lottie.min.js" type="text/javascript">
+  let anim = lottie.loadAnimation({
+    container: document.getElementById('lottie'), // the dom element that will contain the animation
+    path: './anim/loding.json', // the path to the animation json
+    renderer: 'svg',
+    loop: true,
+    autoplay: true,
+    name: "Hello World", // Name for future reference. Optional.
+  });
+</script>  
+  <script src="./js/canvas.js"></script>
+  <script src="./js/socket.io.js"></script>
 <script src="./js/sound.js"></script>
 <script type="module" src="./js/room.js"></script>
+<script>
+</script>
+
 </html>
