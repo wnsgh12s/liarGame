@@ -9,6 +9,7 @@ function ImageRoading(arr){
 ImageRoading(['../img/game.jpg','../img/1.png','../img/2.png','../img/3.png'])
 window.onload = ()=>{
   let sound
+  let gameSound
   document.querySelector('.loadingModal').remove()
   const socket = io() 
   //유저의 연결이 끊기면 새로고침
@@ -296,6 +297,8 @@ window.onload = ()=>{
     //나가기 버튼 이벤트리스너 추가
     leaveRoomBtn?.addEventListener('click',(e)=>{
     playBtnSound()
+    gameSound?.pause()
+    sound.play()  
     socket.emit('leaveRoom',joinedRoom)
     joinedRoom = ''
     gameModal.remove()
@@ -472,7 +475,10 @@ window.onload = ()=>{
     canvasBox.append(canvas)
     let start = startAnim('.startCanvas','start')
     sound.pause()
-    playStart()
+    let readySound = playStart()
+    readySound.addEventListener('ended',()=>{
+      gameSound = playGameSound()
+    })
     start.addEventListener('complete',()=>{
       canvas.remove()
       start.destroy()
@@ -544,7 +550,7 @@ window.onload = ()=>{
         waiting = false
         playerBox.style.boxShadow = 'none'
         if(i === players.length - 1){
-          await wait(1 ,'토론시간','없음',players[i].playNumber)
+          await wait(30,'토론시간','없음',players[i].playNumber)
           waiting = false
         }
       } 
@@ -614,7 +620,10 @@ window.onload = ()=>{
       let p = document.querySelectorAll('[class ^= player] p')
       p.forEach(e=>{
         e.remove()
-      })  
+      })
+      gameSound.pause()
+      sound.currentTime = 0
+      sound.play()
       })
   })
 

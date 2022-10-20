@@ -2,6 +2,7 @@
     let bgm = new Audio()
     bgm.src = '../sound/[No Copyright Music] Beach Party - Kevin MacLeod.mp3'
     bgm.volume = 0.1  
+    bgm.currentTime = 0
     bgm.play()
     bgm.loop = true
     arr.forEach(e=>{
@@ -15,6 +16,15 @@
       })
     })
     return bgm
+  }
+  function playGameSound(element){
+    let btnSound = new Audio()
+    btnSound.src = '../sound/[No Copyright Music] Barbarian - Pierlo.mp3'
+    btnSound.currentTime = 0
+    btnSound.volume = 0.2
+    btnSound.play() 
+    btnSound.loop = true
+    return btnSound
   }
   function playBtnSound(element){
     let btnSound = new Audio()
@@ -45,6 +55,7 @@
     sound.src = '../sound/countDown.mp3'
     sound.volume = 0.1
     sound.play()
+    return sound
   }
   
   let soundBtn = document.createElement('i')
