@@ -6,8 +6,93 @@ body{
   font-family:'HSYujiRegular';
   font-size: 1em;
   color: #222;
+}
+.helpModal{
+  display: none;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  background-color: rgba(34, 34, 34, 0.782);
+}
+.helpModal .x_btn{
+  position: absolute;
+  right: 0;
+  top: 0;
+  padding: 10px 10px 10px 10px;
+}
+.helpModal .box{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  width: 50%;
+  height: 70%;
+  left: 50%;
+  top: 50%;
+  overflow: hidden;
+  transform: translate(-50%,-50%);
+}
+.helpModal .box button{
+  
+}
+.helpModal .box .l_btn {
+  visibility: hidden
+}
+.helpModal .backgroundBox{
+  background-color: #254f45;
+	width: 100%;
+  overflow: hidden;
+  border-radius: 20px;
+  height: 100%;
+  margin: 0 20px 0 20px;
+}
+.helpModal .imgBox {
+  display: flex;
+  position: relative;
+  height: 100%;
+  right: 0;
+  transition: all 0.5s;
+}
+.helpModal .backgroundBox img {
+  display: block;
+  width: 100%;
+}
+.wrap{
   background:url(../img/lobby.jpg) no-repeat center center;
   background-size: cover;
+  height: 100%;
+  overflow: hidden;
+}
+.alertBox {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 32%;
+  height: 32%;
+  overflow : hidden;
+  text-align: center;
+  position : absolute;
+  top : 50%;
+  left : 50%;
+  padding: 10px 20px 10px 20px;
+  background-color: #fcfcfc;
+  border-radius: 5px;
+  border: solid 5px #222;
+  transform : translate(-50%,-50%);
+  transition: all 0.2s; 
+}
+.alertBox .btnBox{
+      position: absolute;
+      right: 5%;
+      top: 5%;
+}
+.alertBox h2 {
+  margin-bottom: 10px;
+}
+.alertBox p {
 }
 button {
   padding: 5px;
@@ -47,6 +132,7 @@ input {
 }
 #header .gnb ul {
   display: flex;
+  align-items: center;
 }
 #header .gnb ul li:not(:first-child) {
   margin-left: 20px;
@@ -325,15 +411,24 @@ input {
 /* 채팅보드 */
 .topBox .chatBoard {
   position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
   color: #eee;
   border: 5px solid #222;
   width: 50%;
   text-align: left;
-  overflow: scroll;
   border-radius: 5px;
   background: #254f45;
 }
-.topBox .chatBoard div {
+.topBox .chatBoard .chatdiv{
+  overflow: scroll;
+}
+.topBox .chatBoard .chatdiv input{
+  display: block;
+  border: 2px solid #333;
+}
+.topBox .chatBoard .chatdiv div{
   font-size: 0.75em;
   width: 100%;
   padding: 10px;
@@ -341,6 +436,9 @@ input {
   white-space: pre-line;
   word-break: break-all;
   border-bottom: 1px solid #333;
+}
+.topBox .chatBoard .chatdiv::-webkit-scrollbar{
+  display: none;
 }
 /* 채팅보드 인풋 */
 .gameModal .middleBox{
@@ -457,6 +555,9 @@ div.gameModal .CategoryModal button:not(:last-child){
 @media screen and (max-width: 800px){
   body{
     font-size: 0.6em;
+  }
+  .helpModal .box{
+    width: 95%;
   }
   .loginModal {
     background:url(../img/lobby.jpg) no-repeat center center /cover;

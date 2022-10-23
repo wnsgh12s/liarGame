@@ -1,20 +1,12 @@
+  let soundState = true
   function playSound(arr){
+    if(!soundState) return 
     let bgm = new Audio()
     bgm.src = '../sound/[No Copyright Music] Beach Party - Kevin MacLeod.mp3'
     bgm.volume = 0.1  
     bgm.currentTime = 0
     bgm.play()
     bgm.loop = true
-    arr.forEach(e=>{
-      e?.addEventListener('click',()=>{
-        bgm.paused ? bgm.play() : bgm.pause()
-        if(e.className ==='fa-solid fa-volume-low'){
-          e.className='fa-solid fa-volume-xmark'
-        }else{
-          e.className='fa-solid fa-volume-low'
-        }
-      })
-    })
     return bgm
   }
   function playGameSound(element){

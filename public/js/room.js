@@ -1,12 +1,36 @@
 
 function ImageRoading(arr){
   for(let i = 0; i < arr.length ; i++){
-    console.log('dd')
     let img = new Image()
     img.src = arr[i]
   }
 }
 ImageRoading(['../img/game.jpg','../img/1.png','../img/2.png','../img/3.png'])
+function startAlert(head,post){
+  let body = document.querySelector('body')
+  let alertBox = document.createElement('div')
+  let btnBox = document.createElement('div')
+  let btn = document.createElement('button')
+  let h = document.createElement('h2')
+  let p = document.createElement('p')
+  alertBox.classList.add('alertBox')
+  alertBox.appendChild(btnBox)
+  btnBox.classList.add('btnBox')
+  btnBox.appendChild(btn)
+  btn.innerText='X'
+  alertBox.appendChild(h)
+  alertBox.appendChild(p)
+  btn.addEventListener('click',(e)=>{
+    alertBox.remove()
+  })
+  h.innerText = head
+  p.innerText = post
+  body.appendChild(alertBox)
+  let time = setTimeout(()=>{
+      alertBox?.remove()
+      clearTimeout(time)
+  },3000)
+}
 window.onload = ()=>{
   let sound
   let gameSound
@@ -18,6 +42,10 @@ window.onload = ()=>{
   })
   //방생성 버튼
   let gnbSoundBtn = document.querySelector('#header > div > nav > ul > li:nth-child(1) > a > i')
+  gnbSoundBtn.addEventListener('click',()=>{
+    soundState = !soundState
+    soundState ? sound.play() : sound.pause()  
+  })
   // 클라이언트가 접속한 방
   let joinedRoom = ''
   // 로그인한 플레이어의 정보
@@ -57,21 +85,21 @@ window.onload = ()=>{
   })
   loginModalInput.addEventListener('keydown',(e)=>{
     if(e.key==='Enter'){
-      if(nickname.includes(' ')) return alert('공백 안됨')
-      if(nickname === '') return alert('암것도 안적엇다잉')
-      if(nickname.length > 7) return alert('8자이상 안되는데?')
-      if(loggedPlayer[nickname]) return alert('이미 사용되고 있는 닉네임')
-      sound = playSound([soundBtn,gnbSoundBtn])
+      if(nickname.includes(' ')) return startAlert('경고','공백 안됨')
+      if(nickname === '') return startAlert('경고','암것도 안적엇다잉')
+      if(nickname.length > 7) return startAlert('경고','8자이상 안되는데?')
+      if(loggedPlayer[nickname]) return startAlert('경고','이미 사용되고 있는 닉네임')
+      sound = playSound()
       socket.emit('nickname',{nickname,currentNum})
       loginModal.remove()  
     }
   })
   joinBtn.addEventListener('click',(e)=>{
-      if(nickname.includes(' ')) return alert('공백 안됨')
-      if(nickname === '') return alert('암것도 안적엇다잉')
-      if(nickname.length > 7) return alert('8자이상 안되는데?')
-      if(loggedPlayer[nickname]) return alert('이미 사용되고 있는 닉네임')
-      sound = playSound([soundBtn,gnbSoundBtn])
+      if(nickname.includes(' ')) return startAlert('경고','공백 안됨')
+      if(nickname === '') return startAlert('경고','암것도 안적엇다잉')
+      if(nickname.length > 7) return startAlert('경고','8자이상 안되는데?')
+      if(loggedPlayer[nickname]) return startAlert('경고','이미 사용되고 있는 닉네임')
+      sound = playSound()
       socket.emit('nickname',{nickname,currentNum })
       loginModal.remove()  
   })
@@ -189,6 +217,7 @@ window.onload = ()=>{
     if(room === undefined) return
     let {player,roomName,roomNumber,password,participants} = room
     addRoom(player,roomName,roomNumber,password,participants)
+    if(!player) return
     let playerBox = document.querySelector(`div.player${player[socket.id].playNumber}`)
     let div = document.createElement('div')
     div.style.borderLeft = '2px solid'
@@ -226,6 +255,7 @@ window.onload = ()=>{
     let player1 = document.createElement('div')
     let player2 = document.createElement('div')
     let chatBoard = document.createElement('div')
+    let chatdiv = document.createElement('div')
     let chatInput = document.createElement('input')
     let rightPlayers = document.createElement('div')
     let player8 = document.createElement('div')
@@ -234,6 +264,7 @@ window.onload = ()=>{
     let player4 = document.createElement('div')
     let player5 = document.createElement('div')
     let player6 = document.createElement('div')
+    chatdiv.classList.add('chatdiv')
     gameModal.classList.add('gameModal')
     gameModalBox.classList.add('gameModalBox')
     topBox.classList.add('topBox')
@@ -280,8 +311,9 @@ window.onload = ()=>{
     gameModalBox.appendChild(middleBox)
     topBox.appendChild(leftPlayers)
     topBox.appendChild(chatBoard)
+    chatBoard.appendChild(chatdiv)
     topBox.appendChild(rightPlayers)
-    middleBox.appendChild(chatInput)
+    chatBoard.appendChild(chatInput)
     leftPlayers.appendChild(player1)
     leftPlayers.appendChild(player2)
     leftPlayers.appendChild(player3)
@@ -293,7 +325,11 @@ window.onload = ()=>{
     document.querySelector('body').append(gameModal)
     let leaveRoomBtn = document.querySelector('body div.gameModal div.buttonBox .exitBtn')
     let _readyBtn = document.querySelector('body div.gameModal div.buttonBox .readyBtn')
-    let _chatInput = document.querySelector('body > div.gameModal > div.gameModalBox > div.middleBox > input')
+    let _chatInput = document.querySelector('body > div.gameModal > div > div.topBox > div.chatBoard > input')
+    soundBtn.addEventListener('click',()=>{
+      soundState = !soundState
+      soundState ? sound.play() : sound.pause()  
+    })
     //나가기 버튼 이벤트리스너 추가
     leaveRoomBtn?.addEventListener('click',(e)=>{
     playBtnSound()
@@ -323,7 +359,6 @@ window.onload = ()=>{
       })
       _chatInput.value = ''
       chat = ''
-      console.log(chat)
     }
   })
   }
@@ -348,7 +383,6 @@ window.onload = ()=>{
       if(player.playNumber === undefined) return
       let playerBox = document.querySelector(`div.player${player.playNumber}`)
       let div = document.createElement('div')
-      console.log(div)
       div.style.borderLeft = '2px solid'
       let h2 = document.createElement('h2')
       h2.style.borderBottom = '2px solid'
@@ -365,7 +399,6 @@ window.onload = ()=>{
     })
   })
   socket.on('joinedRoomData',(data)=>{
-    console.log('접속한애',data)
     //접속한 유저의 데이타
     let playerBox = document.querySelector(`div.player${data.playNumber}`)
     let div = document.createElement('div')
@@ -435,8 +468,12 @@ window.onload = ()=>{
     //모달의 지속시간
     let emit = type
     let time = 15
-    let timer = setInterval(() => {
+    let timer = setInterval(() => {   
       time --
+      if(joinedRoom === ''){
+        clearInterval(timer)
+        return 
+      }
       if(time < 0){
         clearInterval(timer)
         div.remove()
@@ -459,13 +496,12 @@ window.onload = ()=>{
   }
   socket.on('chat',(data)=>{
     playEnterSound()
-    console.log(data)
-    let chatBoard = document.querySelector('body > div.gameModal > div.gameModalBox > div.topBox > div.chatBoard')
+    let chatdiv = document.querySelector('body > div.gameModal > div > div.topBox > div.chatBoard > div.chatdiv')
     let div = document.createElement('div')
     div.classList.add(data.nick)
     div.innerText = `${data.nick} : ${data.chatData} `
-    chatBoard.appendChild(div)
-    chatBoard.scrollTop = chatBoard.scrollHeight
+    chatdiv.appendChild(div)
+    chatdiv.scrollTop = chatdiv.scrollHeight
   })
   //카테고리선택
   socket.on('selectCategory',async (data)=>{
@@ -482,12 +518,12 @@ window.onload = ()=>{
     start.addEventListener('complete',()=>{
       canvas.remove()
       start.destroy()
-      let chatBoard = document.querySelector('div.chatBoard')
+      let chatdiv = document.querySelector('div.chatdiv')
       let div = document.createElement('div')
       div.innerHTML = `<p>게임이 시작되었습니다.</p>`
-      chatBoard.scrollTop = chatBoard.scrollHeight
+      chatdiv.scrollTop = chatdiv.scrollHeight
       div.style.color='#DC2424'
-      chatBoard.appendChild(div)
+      chatdiv.appendChild(div)
       //버튼 비활성화
       let readyBtn = document.querySelector('button.readyBtn')
       readyBtn.style.display = 'none'
@@ -496,7 +532,7 @@ window.onload = ()=>{
         let arr = ['음식','영화','가수','나라']
         createModal(arr,'category','카테고리 고르기')
       }
-      category()
+      category()  
     })
   })
   //카테고리대로 변경
@@ -506,22 +542,34 @@ window.onload = ()=>{
     주제.innerHTML = `주제 : ${data.selected}`
     제시어.innerHTML = `제시어 : ${data.liar === nickname ? '당신은 라이어' : data.word}`
   })
-
+//--------------------------------------------------------------------------------------
   //드디어 게임시작
+  //타이머
   let waiting
+  let ending
   socket.on('gameStart',data=>{
+    ending = false
     waiting = false
     //타이머 프로미스
     let 시간 = document.querySelector('div.time')
     let players = Object.values(data)
     function wait(t,h,n,playNumber){
       let time = t
-      let chatInput = document.querySelector('div.middleBox > input')
+      let chatInput = document.querySelector('body > div.gameModal > div > div.topBox > div.chatBoard > input')
+      let value = null
+      let sendData = (e)=>{
+        if(e.key === 'Enter' && n === nickname){
+          chatInput.removeEventListener('keydown',sendData)
+          socket.emit('explanation',{value,joinedRoom,nickname,playNumber})
+        }
+      }
       return new Promise((resolve)=>{
         let timer = setInterval(() => {
           let min = parseInt(time/60),
               sec = time % 60
+          if(joinedRoom === '') return clearInterval(timer)
           if(time < 0 || waiting){
+            chatInput.removeEventListener('keydown',sendData)
             resolve()
             clearInterval(timer)
           }else if(!waiting){
@@ -529,16 +577,10 @@ window.onload = ()=>{
             시간.innerHTML=`${h} 0${min} : ${sec}`
           }
         }, 1000);
-        let value = null
         chatInput.addEventListener('input',(e)=>{
           value = e.target.value
         })  
-        chatInput.addEventListener('keydown',function sendData(e){
-          if(e.key === 'Enter' && n === nickname){
-            chatInput.removeEventListener('keydown',sendData)
-            socket.emit('explanation',{value,joinedRoom,nickname,playNumber})
-          }
-        })
+        chatInput.addEventListener('keydown',sendData)
       })
     }
     //유저수 만큼 타이머
@@ -547,10 +589,12 @@ window.onload = ()=>{
         let playerBox = document.querySelector(`div.player${players[i].playNumber}`)
         playerBox.style.boxShadow = '0px 0px 20px beige'
         await wait(30,players[i].nickname.concat(' 차례'),players[i].nickname,players[i].playNumber)
+        if(joinedRoom === '') return 
         waiting = false
         playerBox.style.boxShadow = 'none'
         if(i === players.length - 1){
-          await wait(30,'토론시간','없음',players[i].playNumber)
+          await wait(20 ,'토론시간','없음',players[i].playNumber)
+          if(joinedRoom === '') return 
           waiting = false
         }
       } 
@@ -558,11 +602,12 @@ window.onload = ()=>{
     //유저수 만큼 설명할 시간 줬으면 투표
     async function vote(){
       await loopWait()
+      if(joinedRoom === '') return 
       let playerNames = players.map((player)=>{
         return player.nickname
       })
       createModal(playerNames,'vote','투표하기')
-    }
+    } 
     vote()
   })
   // 설명한 유저의 채팅
@@ -574,15 +619,29 @@ window.onload = ()=>{
     waiting = true
   })
   //투표의 결과
-  let oppose
   socket.on('result',async (data)=>{
-    alert(`${data.votedUser}는(은) ${data.result ? '라이어가 맞습니다': '라이어가 아닙니다'}`)
-    let chatBoard = document.querySelector('div.chatBoard')
+    startAlert('결과는..?',`${data.votedUser}는(은) ${data.result ? '라이어가 맞습니다': '라이어가 아닙니다'}`)
+    let chatdiv = document.querySelector('div.chatdiv')
     let div = document.createElement('div')
+    let canvasBox = document.querySelector('.gameModalBox')
+    let canvas = document.createElement('div')
+    let readyBtn = document.querySelector('button.readyBtn')
+    canvas.classList.add('startCanvas')
+    if(!data.result) {
+      canvasBox.appendChild(canvas)
+      readyBtn.style.display = 'block'
+      playLose()  
+      sound.pause()
+      gameSound?.pause()
+      let start = startAnim('.startCanvas','liarWin')
+      start.addEventListener('complete',()=>{
+        canvas.remove()
+      })
+    }
     div.innerHTML = `<p>${data.result ? '라이어에게 정답을 맞출 기회를 드립니다': `${data.votedUser}는(은) 라이어가 아닙니다 라이어의 승리!!!`}</p>`
-    chatBoard.scrollTop = chatBoard.scrollHeight
+    chatdiv.scrollTop = chatdiv.scrollHeight
     div.style.color='#DC2424'
-    chatBoard.appendChild(div)
+    chatdiv.appendChild(div)
     if(data.result && data.votedUser === nickname){
       let arr = data.category
       createModal(arr,'liarVote','정답고르기')
@@ -591,21 +650,21 @@ window.onload = ()=>{
   //공지
   socket.on('alert',(data)=>{
     if(!data.state){
-      console.log(data.alert)
       let modal = document.querySelector('body > div.gameModal > div.CategoryModal')
       modal?.remove()
-      alert(data.alert)
+      startAlert(data.head,data.alert)
     }else{
-      alert(data.alert)
+      startAlert(data.head,data.alert)
       }
     })
+    
   socket.on('answer',(data)=>{
-      let chatBoard = document.querySelector('div.chatBoard')
+      let chatdiv = document.querySelector('div.chatdiv')
       let div = document.createElement('div')
       let canvasBox = document.querySelector('.gameModalBox')
       let canvas = document.createElement('div')
       canvas.classList.add('startCanvas')
-      canvasBox.append(canvas)
+      canvasBox.appendChild(canvas)
       data.answer ? playLose() : playWin()
       let answerAnim = data.answer ? startAnim('.startCanvas','liarwin') : startAnim('.startCanvas','liarLose')
       answerAnim.addEventListener('complete',()=>{
@@ -613,13 +672,13 @@ window.onload = ()=>{
         answerAnim.destroy()
         div.innerHTML = `<p>${data.answer ? `라이어가 선택한 답은 ${data.value}!! 정답을 맞췄습니다 라이어 승리!`: `라이어가 선택한 답은 ${data.value}이며 정답을 틀렸습니다. 라이어패배`}</p>`
       div.style.color='#DC2424'
-      chatBoard.appendChild(div)
-      chatBoard.scrollTop = chatBoard.scrollHeight
+      chatdiv.appendChild(div)
+      chatdiv.scrollTop = chatdiv.scrollHeight
       let readyBtn = document.querySelector('button.readyBtn')
       readyBtn.style.display = 'block'
-      let p = document.querySelectorAll('[class ^= player] p')
-      p.forEach(e=>{
-        e.remove()
+      let container = document.querySelectorAll('div.user p')
+      container.forEach(e=>{
+        e?.remove()
       })
       gameSound.pause()
       sound.currentTime = 0

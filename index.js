@@ -8,7 +8,7 @@ app.use(express.static(__dirname + "/public"));
 let port = process.env.PORT || 8080
 
 http.listen(port,(요청,응답)=>{
-  console.log('시작되엇네')
+  console.log('시작')
 })
 
 app.get('/',function(요청,응답){  
@@ -129,10 +129,10 @@ io.on('connection',function(socket){
 //방에 접속하려는 유저 패스워드가 맞는지 틀린지 확인하기
   socket.on('joinRoom',(data)=>{
     if(roomDataObj[data].start) return io.to(socket.id).emit('alert',{
-      'alert':'게임중입니다','state': true
+      'alert':'참가 할 수 없습니다.','state': true ,'head' : '게임이 진행중입니다'
     })
     if(roomDataObj[data].participants  === 8) return io.to(socket.id).emit('alert',{
-      'alert':'방이꽉찼습니다','state': true
+      'alert':'참가 할 수 없습니다.','state': true ,'head' : '방이 꽉 찼습니다'
     })
     //패스워드가 없으면 
     if(roomDataObj[data].roomNumber === data && roomDataObj[data].password === ''){
@@ -218,7 +218,6 @@ io.on('connection',function(socket){
   socket.on('chat',(chatData)=>{
     let {room} = chatData
     io.to(room).emit('chat',chatData)
-    console.log(chatData)
   })
 
   socket.on('explanation',(chatData)=>{
@@ -252,11 +251,11 @@ io.on('connection',function(socket){
       selected = selected[0]
       roomDataObj[category.room].category = selected
       let random = Math.floor(Math.random()*word[selected].length)
-      
       roomDataObj[category.room].answer = word[selected][random]
       io.to(category.room).emit('category',{'selected':selected,'word' : word[selected][random],'liar':roomDataObj[category.room].liar})
       roomDataObj[category.room].voteArr = []
-      io.to(category.room).emit('gameStart',roomDataObj[category.room].player)
+      console.log(roomDataObj[category.room])
+      io.to(category.room).emit('gameStart',roomDataObj[category.room].player)    
     }
   })  
   socket.on('vote',(data)=>{
@@ -283,8 +282,9 @@ io.on('connection',function(socket){
       })
       //투표수가 같을때
       if(filter.length > 1){
-        socket.emit('alert',{'alert' :'동표입니다', 'state': false})
-        return io.to(data.room).emit('gameStart',roomDataObj[data.room].player);
+        io.to(data.room).emit('alert',{'alert' :'동표입니다 추가 설명 시간', 'state': false, 'head' : '투표수가 같습니다..!'})
+        io.to(data.room).emit('gameStart',roomDataObj[data.room].player);
+        return
       }
       let selectedPlayer = Object.entries(obj).reduce((a,b)=>{
         return a[1] > b[1] ? a : b
@@ -292,7 +292,7 @@ io.on('connection',function(socket){
       roomDataObj[data.room].voteArr = []
       //투표자가 없을때
       if(selectedPlayer[0] === 'null'){
-        socket.emit('alert',{'alert' :'투표자가 없습니다 추가 설명 시간', 'state': false})
+        io.to(data.room).emit('alert',{'alert' :'투표자가 모자랍니다 추가 설명 시간', 'state': false,'head' : '투표자가 없습니다..!'})
         return io.to(data.room).emit('gameStart',roomDataObj[data.room].player);
       }
       if(roomDataObj[data.room].liar === selectedPlayer[0]){
@@ -305,7 +305,6 @@ io.on('connection',function(socket){
           arr2.push(arr[i])
         } 
         arr2.sort(()=> 0.5 - Math.random())
-        console.log(roomDataObj[data.room].answer)
         io.to(data.room).emit('result',{'votedUser':selectedPlayer[0], 'result' : true, 'category' : arr2})
         roomDataObj[data.room].start = false
       }else if(roomDataObj[data.room].liar !== selectedPlayer[0]){
